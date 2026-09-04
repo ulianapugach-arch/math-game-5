@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Математична пригода — Сова Олівія</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#fff3b8 0%,#ffd6e8 45%,#c9f5ff 100%);color:#263238}
+ .wrap{max-width:760px;margin:30px auto;padding:18px}.game{background:rgba(255,255,255,.94);border:3px solid #ffffff;border-radius:28px;padding:22px;box-shadow:0 12px 40px #6b4f9a33}
+.hero{display:flex;gap:16px;align-items:center} .char{width:86px;height:86px;border-radius:24px;display:grid;place-items:center;font-size:52px;background:linear-gradient(135deg,#ffe66d,#ff9ecb);border:3px solid #fff;box-shadow:0 5px 16px #e65c9a44}
+h1{font-size:25px;margin:0 0 6px;background:linear-gradient(90deg,#e85d9e,#6a63d8,#19a7c9);-webkit-background-clip:text;background-clip:text;color:transparent}.muted{color:#69756f} .progress{height:14px;background:#e8e1f7;border-radius:20px;margin:18px 0;overflow:hidden}.bar{height:100%;width:10%;background:linear-gradient(90deg,#ffbd3f,#ff6f91,#7567df);border-radius:20px;transition:.3s}
+ .question{text-align:center;border:2px solid #d8c9f4;border-radius:22px;padding:22px;background:linear-gradient(180deg,#ffffff,#f8f4ff)}.qnum{color:#69756f;font-weight:bold}.qtext{font-size:32px;font-weight:800;margin:14px 0 20px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px} .ans{padding:14px;border:2px solid #cbd8ff;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#fff7fc);font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 3px 8px #667eea22}.ans:hover{border-color:#ff78a8;transform:translateY(-2px)}.correct{background:#e7f6ea!important;border-color:#62a26f!important}.wrong{background:#fff0ee!important;border-color:#d36c63!important}.ans:disabled{cursor:default}
+ .helper{display:flex;gap:12px;align-items:center;margin-top:14px;padding:12px;border-radius:18px;background:linear-gradient(90deg,#fff4b8,#e7ddff);border:2px solid #ead8ff}.mini{font-size:34px}.helper p{margin:0;font-size:14px;flex:1} .help,.next,.restart{border:0;background:linear-gradient(135deg,#ffcb55,#ff7fa8);color:#fff;border-radius:14px;padding:11px 15px;font-weight:bold;cursor:pointer;box-shadow:0 4px 10px #ff7fa844}.next,.restart{background:linear-gradient(135deg,#63d6a0,#4ca7e8)}.feedback{text-align:center;min-height:25px;margin:14px 0;font-weight:bold}.hidden{display:none}.score{text-align:center;padding:25px}.big{font-size:58px;font-weight:900}.stars{font-size:30px;letter-spacing:4px;margin:8px}.actions{text-align:center}@media(max-width:520px){.answers{grid-template-columns:1fr}.qtext{font-size:27px}.char{width:68px;height:68px;font-size:40px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="game">
+<div class="hero"><div class="char">🦉</div><div><h1>Математична пригода</h1><div id="roundLabel" style="font-weight:bold;color:#7567df;margin-bottom:4px">Раунд 1</div><div class="muted">Сова Олівія перевіряє твою майстерність додавання й віднімання натуральних чисел!</div></div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+
+<section id="quiz">
+<div class="question"><div class="qnum" id="qnum"></div><div class="qtext" id="qtext"></div><div class="answers" id="answers"></div></div>
+<div class="helper"><div class="mini">🐿️</div><p id="hint"><b>Білченятко Горішок</b><br>Можу дати підказку!</p><button class="help" id="help">Підказка</button></div>
+<div class="feedback" id="feedback"></div>
+<div class="actions"><button class="next hidden" id="next">Наступне запитання →</button></div>
+</section>
+
+<section id="result" class="score hidden"><div style="font-size:64px">🏆</div><h2>Пригода завершена!</h2><div class="big" id="finalScore"></div><div class="stars" id="stars"></div><p id="finalText"></p><button class="next" id="nextRound">➡️ Перейти до раунду 2</button> <button class="restart" id="restart">🔄 Почати спочатку</button></section>
+</div></div>
+
+<script>
+const rounds=[
+[
+['125 + 34 = ?',['149','159','169','151'],1,'Додай спочатку десятки, а потім одиниці.'],
+['480 − 125 = ?',['345','355','365','305'],1,'Відніми 100, потім 25.'],
+['2 347 + 1 256 = ?',['3 503','3 603','3 613','3 703'],1,'Додавай розряд за розрядом, починаючи з одиниць.'],
+['5 000 − 2 746 = ?',['2 154','2 254','2 354','2 264'],1,'Виконай 5000 − 2700 − 46.'],
+['3 875 + 2 649 = ?',['6 424','6 514','6 524','6 624'],2,'Не забудь про переходи через розряд.'],
+['8 204 − 3 758 = ?',['4 446','4 456','4 546','4 356'],1,'У потрібних розрядах виконай позичання.'],
+['12 345 + 7 856 − 4 201 = ?',['15 900','16 000','16 100','15 990'],1,'Виконай дії послідовно зліва направо.'],
+['25 000 − (8 745 + 3 255) = ?',['12 900','13 000','13 100','14 000'],1,'Спочатку знайди значення в дужках.'],
+['16 750 + 2 680 − 5 430 = ?',['13 900','14 000','14 100','14 200'],1,'Спочатку додай, потім відніми.'],
+['18 500 + 3 275 − 4 860 = ?',['16 815','16 915','17 015','17 115'],1,'Спочатку додай придбані книжки, потім відніми передані.']
+],
+[
+['236 + 47 = ?',['273','283','293','303'],1,'Додай десятки, а потім одиниці.'],
+['750 − 236 = ?',['504','514','524','534'],1,'Відніми 200, потім 36.'],
+['1 825 + 2 436 = ?',['4 161','4 261','4 361','4 461'],1,'Працюй розряд за розрядом.'],
+['6 000 − 2 875 = ?',['3 025','3 125','3 225','3 325'],1,'Зручно відняти 2800, а потім 75.'],
+['4 268 + 3 457 = ?',['7 625','7 725','7 825','7 925'],1,'Уважно стеж за переходами через десяток.'],
+['9 103 − 4 678 = ?',['4 325','4 425','4 525','4 625'],1,'Не забудь про позичання в розрядах.'],
+['14 250 + 6 735 − 3 485 = ?',['17 400','17 500','17 600','17 700'],1,'Виконай дії послідовно.'],
+['30 000 − (9 650 + 5 350) = ?',['14 000','15 000','16 000','17 000'],1,'Спочатку обчисли суму в дужках.'],
+['27 840 − 6 275 + 1 435 = ?',['22 900','23 000','23 100','23 200'],1,'Спочатку відніми, потім додай.'],
+['21 600 + 4 275 − 7 850 = ?',['17 925','18 025','18 125','18 225'],1,'Додай два числа, а потім відніми третє.']
+]
+];
+let round=0;
+let qs=rounds[round];
+let i=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function render(){
+ $('roundLabel').textContent=`Раунд ${round+1}`;
+ answered=false; const x=qs[i]; $('qnum').textContent=`Запитання ${i+1} із 10`; $('qtext').textContent=x[0];
+ $('answers').innerHTML=''; $('feedback').textContent=''; $('hint').innerHTML='<b>Білченятко Горішок</b><br>Можу дати підказку!'; $('help').disabled=false; $('next').classList.add('hidden'); $('bar').style.width=((i+1)*10)+'%';
+ const opts=x[1].map((v,j)=>({v,correct:j===x[2]})); opts.sort(()=>Math.random()-.5);
+ opts.forEach((o,j)=>{let b=document.createElement('button');b.className='ans';b.textContent=o.v;b.dataset.correct=o.correct?'1':'0';b.onclick=()=>choose(j,b);$('answers').appendChild(b)});
+}
+function choose(j,b){
+ if(answered)return; answered=true; const ok=b.dataset.correct==='1';
+ document.querySelectorAll('.ans').forEach(e=>{e.disabled=true;if(e.dataset.correct==='1')e.classList.add('correct')});
+ if(!ok)b.classList.add('wrong');
+ $('feedback').textContent=ok?'🎉 Правильно! Чудова робота!':'💡 Майже! Правильна відповідь підсвічена.';
+ $('help').disabled=true; $('next').classList.remove('hidden');
+ if(ok)score++;
+ if(ok) beep(700); else beep(260);
+}
+function beep(freq){try{let A=new AudioContext(),o=A.createOscillator(),g=A.createGain();o.frequency.value=freq;g.gain.value=.08;o.connect(g);g.connect(A.destination);o.start();o.stop(A.currentTime+.16)}catch(e){}}
+$('help').onclick=()=>{$('hint').innerHTML='<b>🐿️ Підказка Горішка:</b><br>'+qs[i][3]};
+$('next').onclick=()=>{if(i<9){i++;render()}else showResult()};
+function showResult(){
+ $('quiz').classList.add('hidden');$('result').classList.remove('hidden');$('finalScore').textContent=`${score}/10`; $('nextRound').classList.toggle('hidden',round!==0);
+ let n=score>=9?5:score>=7?4:score>=5?3:score>=3?2:1;$('stars').textContent='★'.repeat(n)+'☆'.repeat(5-n);
+ $('finalText').textContent=(round===0?'Раунд 1 завершено! ':'Раунд 2 завершено! ')+(score===10?'Неймовірно! Ти майстер натуральних чисел!':score>=7?'Супер! Ти впевнено долаєш математичні перешкоди!':score>=5?'Гарний результат! Ще трохи практики — і буде відмінно!':'Не засмучуйся! Спробуй ще раз!');
+}
+$('nextRound').onclick=()=>{
+ round=1; qs=rounds[round]; i=0; score=0;
+ $('result').classList.add('hidden'); $('quiz').classList.remove('hidden');
+ $('nextRound').classList.add('hidden'); render();
+};
+$('restart').onclick=()=>{
+ round=0; qs=rounds[round]; i=0; score=0;
+ $('result').classList.add('hidden'); $('quiz').classList.remove('hidden');
+ $('nextRound').classList.remove('hidden'); render();
+};
+render();
+</script>
+</body></html>
