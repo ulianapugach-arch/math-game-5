@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>У пошуках скарбів</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#bdeff7,#f8efd8);color:#18323b}
+.game{max-width:760px;margin:20px auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 8px 28px #0002}
+.top{padding:22px;background:linear-gradient(135deg,#075985,#0891b2);color:white}.top h1{margin:0;font-size:34px}.sub{margin-top:5px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.badge{background:#ffffff2b;padding:8px 12px;border-radius:20px}
+.deck,.intro,.treasure,.result{padding:22px}.levels{display:flex;gap:7px;margin-bottom:18px}.lev{flex:1;text-align:center;padding:9px;border-radius:10px;background:#e7eff0;font-size:13px;font-weight:bold}.active{background:#f6c453}.done{background:#9bd8c0}
+.pirate{display:flex;gap:14px;align-items:center;background:#eef9fb;padding:13px;border-radius:16px;margin-bottom:16px}.pirateIcon{font-size:48px}.small{display:block;color:#58717a;font-size:13px;margin-top:3px}
+.card{background:white;border:1px solid #d5e4e6;border-radius:18px;padding:20px}.qnum{color:#0e7490;font-weight:bold;font-size:13px}.question{font-size:22px;font-weight:bold;margin:9px 0 18px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answer,input{padding:13px;border:2px solid #d5e4e6;border-radius:12px;font-size:17px}.answer{text-align:left;background:#f8fbfb;cursor:pointer}.answer.selected{border-color:#0e7490;background:#e1f5f8}.answer.correct{border-color:#29966f;background:#e5f6ee}.answer.wrong{border-color:#c9685e;background:#fcebea}
+input{box-sizing:border-box;width:100%}.row{display:flex;gap:10px;align-items:center}.unit{font-weight:bold;color:#58717a}.actions{text-align:right;margin-top:15px}
+button.primary,button.secondary{border:0;border-radius:12px;padding:13px 18px;font-weight:bold;font-size:15px;cursor:pointer}.primary{background:#0e7490;color:white}.secondary{background:#e7eff0;color:#18323b}.feedback{min-height:25px;margin-top:12px;font-weight:bold}.good{color:#187154}.bad{color:#a0443d}
+.intro{text-align:center}.map{font-size:70px}.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0;text-align:left}.rule{background:#f8fbfb;padding:13px;border-radius:13px}.rule span{display:block;font-size:12px;color:#58717a;margin-top:4px}
+.treasure{text-align:center}.chest{font-size:90px}.coins{min-height:65px;display:flex;justify-content:center;flex-wrap:wrap;gap:7px}.coin{font-size:32px;animation:fly .6s ease both}.next{font-weight:bold;color:#187154;margin:15px}.result{text-align:center}.trophy{font-size:70px}.score{font-size:25px;font-weight:bold;color:#9a6b00}.progress{height:12px;background:#dcebed;border-radius:20px;margin:18px 0;overflow:hidden}.progress i{display:block;height:100%;background:#d4a017;width:0}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.summary div{background:#f8fbfb;padding:12px;border-radius:12px}.summary b{display:block;font-size:22px;color:#0e7490}
+@keyframes fly{0%{transform:translateY(20px) scale(.2);opacity:0}70%{transform:translateY(-8px) scale(1.1);opacity:1}100%{transform:none}}
+@media(max-width:520px){.answers,.rules,.summary{grid-template-columns:1fr}.top h1{font-size:28px}.question{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="game">
+<div class="top"><h1>🏴‍☠️ У пошуках скарбів</h1><div class="sub">Математична пригода для п'ятикласника</div><div class="stats"><span class="badge" id="ls">Рівень 1 із 3</span><span class="badge" id="qs">Завдання 0 із 4</span><span class="badge">🪙 Монети: <b id="cs">0</b></span></div></div>
+<div id="screen"></div>
+</div>
+<script>
+const levels=[
+{name:'Початковий',desc:'Розминка',choice:true,qs:[
+['Скільки буде 348 + 127?',['465','475','485','470'],1],
+['Яке число є найбільшим?',['709','790','907','970'],3],
+['Обчисли: 800 − 356',['444','454','464','434'],0],
+['Скільки сантиметрів у 3 метрах?',['30 см','300 см','3000 см','33 см'],1]]},
+{name:'Середній',desc:'Морські рифи',qs:[
+['Обчисли: 48 · 7','336'],['Обчисли: 936 : 9','104'],['Знайди значення виразу: 56 + 24 · 3','128'],['Периметр прямокутника зі сторонами 8 см і 5 см.','26','см']]},
+{name:'Достатній',desc:'Капітанський рівень',qs:[
+['У скрині було 240 монет. Пірат витратив 75, а потім знайшов ще 38. Скільки стало?','203','монет'],
+['У трьох однакових мішках 72 кг золота. Скільки кг у кожному?','24','кг'],
+['Довжина острова 12 м, ширина 7 м. Яка площа?','84','м²'],
+['Корабель вирушив о 9:35 і прибув о 12:05. Скільки хвилин тривала подорож?','150','хв']]}
+];
+let level=0,q=0,total=0,levelScore=0,selected=null,locked=false;
+const screen=document.getElementById('screen'),ls=document.getElementById('ls'),qs=document.getElementById('qs'),cs=document.getElementById('cs');
+function beep(ok=true){try{let C=new AudioContext(),n=ok?[523,659,784,1047]:[220,165];n.forEach((f,i)=>{let o=C.createOscillator(),g=C.createGain();o.frequency.value=f;o.connect(g);g.connect(C.destination);g.gain.setValueAtTime(.12,C.currentTime+i*.08);g.gain.exponentialRampToValueAtTime(.001,C.currentTime+i*.08+.16);o.start(C.currentTime+i*.08);o.stop(C.currentTime+i*.08+.17)})}catch(e){}}
+function intro(){screen.innerHTML='<div class="intro"><div class="map">🗺️🏝️</div><h2>Готовий вирушити за скарбами?</h2><p>Три рівні, 12 математичних випробувань і справжня скриня зі скарбами!</p><div class="rules"><div class="rule">🧭 <b>3 рівні</b><span>від простого до складнішого</span></div><div class="rule">⚓ <b>12 завдань</b><span>по 4 на кожному рівні</span></div><div class="rule">🪙 <b>Скарби</b><span>монета за правильну відповідь</span></div></div><button class="primary" id="start">⚔️ Розпочати пригоду</button></div>';document.getElementById('start').onclick=render}
+function render(){locked=false;selected=null;ls.textContent=`Рівень ${level+1} із 3`;qs.textContent=`Завдання ${q+1} із 4`;cs.textContent=total;let L=levels[level],x=L.qs[q],body=L.choice?`<div class="answers">${x[1].map((a,i)=>`<button class="answer" data-i="${i}">${a}</button>`).join('')}</div>`:`<div class="row"><input id="ans" inputmode="numeric" placeholder="Введи відповідь"><span class="unit">${x[2]||''}</span></div>`;screen.innerHTML=`<div class="deck"><div class="levels">${levels.map((z,i)=>`<div class="lev ${i===level?'active':''} ${i<level?'done':''}">${i+1}. ${z.name}</div>`).join('')}</div><div class="pirate"><div class="pirateIcon">🏴‍☠️</div><div><b>Капітане, вперед!</b><span class="small">${L.desc} — покажи математичну майстерність.</span></div></div><div class="card"><div class="qnum">ЗАВДАННЯ ${q+1}</div><div class="question">${x[0]}</div>${body}<div class="feedback" id="fb"></div><div class="actions"><button class="primary" id="check">⚓ Перевірити</button></div></div></div>`;document.querySelectorAll('.answer').forEach(b=>b.onclick=()=>{if(!locked){document.querySelectorAll('.answer').forEach(z=>z.classList.remove('selected'));b.classList.add('selected');selected=+b.dataset.i}});let inp=document.getElementById('ans');if(inp)inp.onkeydown=e=>{if(e.key==='Enter')check()};document.getElementById('check').onclick=check}
+function check(){if(locked)return;let L=levels[level],x=L.qs[q],ok=false;if(L.choice){if(selected===null){fb.textContent='Обери відповідь.';fb.className='feedback bad';return}ok=selected===x[2];document.querySelectorAll('.answer').forEach((b,i)=>{if(i===x[2])b.classList.add('correct');if(i===selected&&!ok)b.classList.add('wrong')})}else{let v=document.getElementById('ans').value.trim();if(!v){fb.textContent='Введи відповідь.';fb.className='feedback bad';return}ok=v===x[1]}locked=true;if(ok){total++;levelScore++;cs.textContent=total;fb.textContent='✨ Влучно!';fb.className='feedback good';beep(true)}else{fb.textContent='🌊 Не цього разу. Продовжуємо пошуки!';fb.className='feedback bad';beep(false)}let b=document.getElementById('check');b.textContent=q<3?'Наступне завдання ➜':level<2?'Відкрити скриню 🗝️':'Завершити пригоду 🏆';b.onclick=advance}
+function advance(){if(q<3){q++;render()}else{chest()}}
+function chest(){let c='';for(let i=0;i<levelScore;i++)c+=`<span class="coin" style="animation-delay:${i*.1}s">🪙</span>`;beep(true);let last=level===2;screen.innerHTML=`<div class="treasure"><div class="chest">🎁</div><h2>Скриню відкрито!</h2><p>На цьому рівні ти здобув <b>${levelScore} із 4</b> монет.</p><div class="coins">${c||'—'}</div><div class="next">${last?'🏆 Усі рівні пройдено!':'🗺️ Наступна частина карти вже чекає!'}</div><button class="primary" id="cont">${last?'🏆 Завершити подорож':`⚓ Перейти до рівня ${level+2}`}</button></div>`;document.getElementById('cont').onclick=()=>{if(last)result();else{level++;q=0;levelScore=0;render()}}}
+function result(){let p=Math.round(total/12*100);ls.textContent='Подорож завершено';qs.textContent='12 завдань';cs.textContent=total;screen.innerHTML=`<div class="result"><div class="trophy">🏆</div><h2>${total>=10?'Справжній математичний капітан!':total>=7?'Чудовий результат!':'Математична пригода завершена!'}</h2><div class="score">🪙 ${total} із 12 монет</div><div class="progress"><i id="bar"></i></div><div class="summary"><div><b>${total}</b>монет</div><div><b>${p}%</b>результат</div><div><b>12</b>завдань</div></div><p>Результат допоможе визначити, які теми початкової школи вже добре засвоєні.</p><button class="secondary" id="again">🔄 Пройти ще раз</button></div>`;setTimeout(()=>document.getElementById('bar').style.width=p+'%',30);document.getElementById('again').onclick=()=>{level=0;q=0;total=0;levelScore=0;intro()}}
+intro();
+</script>
+</body>
+</html>
