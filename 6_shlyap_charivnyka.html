@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>6 шляп чарівника — багатоцифрові числа</title>
+<style>
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Georgia,'Times New Roman',serif;background:radial-gradient(circle at 50% 20%,#315c78,#111b35 70%);color:#fff;display:flex;justify-content:center;align-items:center;padding:18px}
+.game{width:min(1180px,100%);min-height:700px;border:4px solid #d9a73a;border-radius:28px;background:linear-gradient(145deg,#1b2948,#0e1730);box-shadow:0 0 35px #0009,0 0 80px #6e4bb055;overflow:hidden;position:relative}
+header{text-align:center;padding:22px 20px 12px;background:#17233f}
+h1{margin:0;color:#ffd86a;font-size:clamp(30px,5vw,58px);text-shadow:0 3px 0 #513a14}
+.subtitle{font-size:clamp(17px,2vw,24px);margin-top:8px;color:#f4e6c3}
+.progress{display:flex;gap:8px;justify-content:center;margin:14px auto 4px}
+.dot{width:34px;height:10px;border-radius:10px;background:#4c5a72} .dot.done{background:#ffd24d} .dot.current{background:#a77cff;box-shadow:0 0 12px #a77cff}
+.stage{padding:28px 30px 36px;text-align:center}
+.hats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:900px;margin:10px auto 24px}
+.hat{height:210px;border:0;background:transparent;cursor:pointer;position:relative;transition:.25s;filter:drop-shadow(0 10px 7px #0008)}
+.hat:hover{transform:translateY(-9px) scale(1.03)} .hat.hidden{visibility:hidden;pointer-events:none}
+.cone{position:absolute;left:50%;top:15px;transform:translateX(-50%) rotate(-3deg);width:115px;height:145px;background:var(--c);clip-path:polygon(50% 0,100% 88%,0 88%);border-radius:25px 25px 10px 10px}
+.brim{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);width:190px;height:46px;border-radius:50%;background:var(--c);border:7px solid #1a1830}
+.band{position:absolute;left:50%;top:126px;transform:translateX(-50%);width:108px;height:25px;background:#181526;border:3px solid #e0ad45;border-radius:8px;z-index:2}
+.num{position:absolute;left:50%;top:131px;transform:translateX(-50%);z-index:3;font:bold 19px Arial;color:#ffe68a}
+.star{position:absolute;left:50%;top:60px;transform:translateX(-50%);font-size:38px;color:#fff2a0;z-index:2;text-shadow:0 0 10px #fff}
+.question{display:none;max-width:850px;margin:0 auto;background:#fff8e8;color:#1d2741;border:4px solid #d8a63c;border-radius:22px;padding:28px;box-shadow:0 12px 35px #0008}
+.question.show{display:block;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.qnum{font:bold 18px Arial;color:#7755b5;margin-bottom:10px}
+.prompt{font-size:clamp(22px,3vw,34px);line-height:1.35;margin:8px 0 20px}
+.word{font-weight:bold;color:#5a3b9d}
+.inputrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+input{font:700 28px Arial;width:min(430px,80vw);padding:12px 16px;border:3px solid #7a63b6;border-radius:14px;text-align:center;outline:none}
+input:focus{box-shadow:0 0 0 4px #b9a5ed66}
+button.check{font:bold 20px Arial;padding:13px 24px;border:0;border-radius:14px;background:#6849ad;color:white;cursor:pointer}
+button.check:hover{background:#563b92}
+.feedback{min-height:32px;margin-top:16px;font:bold 20px Arial}
+.good{color:#148044} .bad{color:#b52e42}
+.next{display:none;margin-top:14px;background:#d9a63e!important;color:#24190b!important}
+.finish{display:none;text-align:center;background:#fff8e8;color:#2a2340;border:4px solid #d8a63c;border-radius:22px;padding:35px;max-width:760px;margin:auto}
+.finish.show{display:block;animation:pop .4s ease}
+.finish h2{font-size:42px;color:#6b48a8;margin:0 0 10px}
+.restart{font:bold 20px Arial;padding:13px 25px;border:0;border-radius:14px;background:#6849ad;color:#fff;cursor:pointer}
+.hint{font:16px Arial;color:#d5d9e7;margin-top:8px}
+@media(max-width:700px){.hats{grid-template-columns:repeat(2,1fr);gap:8px}.hat{height:175px;transform:scale(.85)}.hat:hover{transform:translateY(-7px) scale(.9)}}
+</style>
+</head>
+<body>
+<div class="game">
+<header>
+<h1>🎩 6 шляп чарівника</h1>
+<div class="subtitle">Обери шляпу та запиши число цифрами</div>
+<div class="progress" id="progress"></div>
+</header>
+<div class="stage">
+<div class="hats" id="hats"></div>
+<div class="question" id="question">
+<div class="qnum" id="qnum"></div>
+<div class="prompt"><span id="instruction"></span><br><span class="word" id="word"></span></div>
+<div class="inputrow">
+<input id="answer" inputmode="numeric" autocomplete="off" aria-label="Введіть число">
+<button class="check" id="check">Перевірити</button>
+</div>
+<div class="feedback" id="feedback"></div>
+<button class="check next" id="next">Наступне завдання →</button>
+</div>
+<div class="finish" id="finish">
+<h2>✨ Чудова робота!</h2>
+<p style="font-size:24px">Ти відкрив усі 6 шляп і правильно записав усі багатоцифрові числа!</p>
+<div style="font-size:64px">🎩 🎩 🎩 🎩 🎩 🎩</div>
+<button class="restart" onclick="location.reload()">Грати ще раз</button>
+</div>
+<div class="hint">Підказка: якщо відповідь неправильна, спробуй ще раз — наступне завдання відкриється лише після правильної відповіді.</div>
+</div>
+</div>
+<script>
+const questions = [["Запиши цифрами:", "шістнадцять тисяч двісті тридцять", "16230"], ["Запиши цифрами:", "сорок п’ять тисяч сімсот шість", "45706"], ["Запиши цифрами:", "триста дві тисячі сорок п’ять", "302045"], ["Запиши цифрами:", "сімсот двадцять тисяч дев’ятсот один", "720901"], ["Запиши цифрами:", "один мільйон двісті тридцять чотири тисячі п’ятсот шістдесят сім", "1234567"], ["Запиши цифрами:", "два мільйони п’ять тисяч вісімдесят", "2005080"]];
+let current = 0;
+const hats = document.getElementById('hats');
+const question = document.getElementById('question');
+const finish = document.getElementById('finish');
+const answer = document.getElementById('answer');
+const feedback = document.getElementById('feedback');
+const next = document.getElementById('next');
+const progress = document.getElementById('progress');
+const colors = ['#2467d1','#d63e51','#2ba64a','#7044c5','#e4a927','#222b4b'];
+const symbols = ['☾','★','♣','✦','☀','✎'];
+
+function drawProgress(){
+  progress.innerHTML = questions.map((_,i)=>`<span class="dot ${i<current?'done':i===current?'current':''}"></span>`).join('');
+}
+function makeHats(){
+  hats.innerHTML='';
+  for(let i=0;i<6;i++){
+    const b=document.createElement('button');
+    b.className='hat';
+    b.style.setProperty('--c',colors[i]);
+    b.innerHTML=`<span class="cone"></span><span class="star">${symbols[i]}</span><span class="brim"></span><span class="band"></span><span class="num">${i+1}</span>`;
+    b.onclick=()=>openQuestion(i,b);
+    hats.appendChild(b);
+  }
+}
+function openQuestion(i,b){
+  if(i!==current) return;
+  b.classList.add('hidden');
+  const [inst,word]=questions[i];
+  document.getElementById('qnum').textContent=`Завдання ${i+1} із 6`;
+  document.getElementById('instruction').textContent=inst;
+  document.getElementById('word').textContent=word;
+  answer.value=''; feedback.textContent=''; feedback.className='feedback'; next.style.display='none';
+  question.classList.add('show'); answer.focus(); drawProgress();
+}
+function confetti(){
+  for(let i=0;i<26;i++){
+    const s=document.createElement('span');
+    s.textContent=['✨','⭐','🎉','🎊'][Math.floor(Math.random()*4)];
+    s.style.position='fixed'; s.style.left=(Math.random()*100)+'vw'; s.style.top='-30px';
+    s.style.fontSize=(18+Math.random()*24)+'px'; s.style.zIndex=9999;
+    document.body.appendChild(s);
+    s.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${110+Math.random()*80}vh) rotate(${360+Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*900,easing:'ease-out'}).onfinish=()=>s.remove();
+  }
+}
+function fanfare(){
+  try{
+    const C=window.AudioContext||window.webkitAudioContext; if(!C)return;
+    const ctx=new C(); const now=ctx.currentTime;
+    [523.25,659.25,783.99,1046.5].forEach((f,k)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='triangle'; o.frequency.value=f; g.gain.setValueAtTime(.0001,now+k*.12);
+      g.gain.exponentialRampToValueAtTime(.22,now+k*.12+.03);
+      g.gain.exponentialRampToValueAtTime(.0001,now+k*.12+.42);
+      o.connect(g).connect(ctx.destination); o.start(now+k*.12); o.stop(now+k*.12+.45);
+    });
+  }catch(e){}
+}
+document.getElementById('check').onclick=()=>{
+  const value=answer.value.replace(/\s+/g,'').trim();
+  const correct=questions[current][2];
+  if(value===correct){
+    feedback.textContent='🎉 Правильно! Фанфари!';
+    feedback.className='feedback good'; next.style.display='inline-block';
+    fanfare(); confetti(); answer.disabled=true;
+  } else {
+    feedback.textContent='Спробуй ще раз. Уважно прочитай число!';
+    feedback.className='feedback bad'; answer.select();
+  }
+};
+answer.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('check').click()});
+next.onclick=()=>{
+  current++;
+  if(current>=questions.length){
+    question.classList.remove('show'); finish.classList.add('show'); progress.innerHTML=questions.map(()=>'<span class="dot done"></span>').join('');
+  } else {
+    question.classList.remove('show'); answer.disabled=false; drawProgress();
+  }
+};
+makeHats(); drawProgress();
+</script>
+</body></html>
