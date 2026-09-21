@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математичні Скарби</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling, keep it like a game screen */
+            /* Тропічний яскравий градієнт */
+            background: linear-gradient(to bottom, #00b4db 0%, #0083b0 35%, #f9d423 35%, #ff4e50 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Decorative background elements */
+        .sea {
+            position: absolute;
+            top: 35%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            background: linear-gradient(to bottom, #00f2fe 0%, #4facfe 40%, #02aab0 100%);
+            border-top: 3px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 -5px 25px rgba(0, 242, 254, 0.5);
+            z-index: -1;
+        }
+        
+        .sun {
+            position: absolute;
+            top: 40px;
+            right: 100px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #FFFDE4 0%, #F2C94C 60%, #F2994A 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px #F2C94C, 0 0 120px #F2994A;
+            z-index: -2;
+        }
+
+        .chest-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: auto;
+            margin-bottom: 25vh; /* Піднімаємо скрині вище */
+            width: 100%;
+            padding: 0 20px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            z-index: 5;
+        }
+
+        .chest {
+            width: 180px; /* Робимо скрині набагато більшими */
+            height: 180px;
+            cursor: pointer;
+            transition: transform 0.3s, filter 0.3s;
+            position: relative;
+            filter: drop-shadow(10px 10px 15px rgba(0,0,0,0.5));
+        }
+
+        .chest:hover:not(.disabled) {
+            transform: scale(1.1);
+            filter: drop-shadow(12px 12px 20px rgba(0,0,0,0.6)) brightness(1.2);
+        }
+
+        .chest.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            filter: grayscale(70%) sepia(30%);
+        }
+
+        .chest.active {
+            transform: scale(1.15) translateY(-15px);
+            z-index: 10;
+        }
+
+        .chest.opened {
+            cursor: default;
+        }
+
+        /* SVG for Chests */
+        .chest-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .level-label {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 5px 15px;
+            border-radius: 12px;
+            font-weight: 900;
+            color: #d35400; /* Яскравіший текст */
+            font-size: 18px; /* Більший шрифт */
+            white-space: nowrap;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Modal Styles */
+        #game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            border: 6px solid #FF8C00; /* Тропічний помаранчевий */
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23fffcf5"/><path d="M0 0h100v100H0z" fill="none"/><path d="M0 0h10v10H0zm10 10h10v10H10zm10 10h10v10H20zm10 10h10v10H30zm10 10h10v10H40zm10 10h10v10H50zm10 10h10v10H60zm10 10h10v10H70zm10 10h10v10H80zm10 10h10v10H90z" fill="%23ffe4b5" opacity="0.4"/></svg>');
+        }
+
+        /* Specific Input Styles */
+        .game-input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .game-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 8px rgba(79, 172, 254, 0.5);
+        }
+        
+        .compare-select {
+            font-size: 24px;
+            padding: 5px;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .option-btn {
+            background-color: #f0f0f0;
+            border: 2px solid #ccc;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background-color: #e0e0e0;
+            border-color: #999;
+        }
+
+        .option-btn.selected {
+            background-color: #4facfe;
+            color: white;
+            border-color: #00f2fe;
+        }
+
+        /* Message Box styling */
+        #message-box {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .msg-error { background-color: #ffebee; color: #c62828; }
+        .msg-success { background-color: #e8f5e9; color: #2e7d32; }
+
+        /* General UI */
+        .title {
+            margin-top: 20px;
+            color: #ffffff;
+            text-shadow: 3px 3px 0 #FF4500, -1px -1px 0 #FF4500, 1px -1px 0 #FF4500, -1px 1px 0 #FF4500, 1px 1px 0 #FF4500;
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 25px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #d35400;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-action {
+            background: linear-gradient(to right, #ff416c, #ff4b2b); /* Яскравий градієнт */
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 6px 15px rgba(255, 75, 43, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 75, 43, 0.6);
+        }
+        
+        .btn-action:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(255, 75, 43, 0.4);
+        }
+        
+        .btn-action:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Fireworks for victory */
+        .pyro > .before, .pyro > .after {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow: 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff;
+            animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+            z-index: 1000;
+        }
+        .pyro > .after {
+            animation-delay: 1.25s, 1.25s, 1.25s;
+            animation-duration: 1.25s, 1.25s, 6.25s;
+        }
+        @keyframes bang {
+            to { box-shadow: 200px -300px #00ff00, -100px -100px #ff0000, 300px -200px #0000ff, 10px -350px #ffff00, -200px -250px #ff00ff, 150px -150px #00ffff, -50px -400px #ffa500; }
+        }
+        @keyframes gravity {
+            to { transform: translateY(200px); opacity: 0; }
+        }
+        @keyframes position {
+            0%, 19.9% { margin-top: 10%; margin-left: 40%; }
+            20%, 39.9% { margin-top: 40%; margin-left: 30%; }
+            40%, 59.9% { margin-top: 20%; margin-left: 70%; }
+            60%, 79.9% { margin-top: 30%; margin-left: 20%; }
+            80%, 99.9% { margin-top: 30%; margin-left: 80%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sun"></div>
+    <div class="sea"></div>
+    
+    <h1 class="title">Математичні Скарби</h1>
+    <div class="instructions" id="main-instruction">Відкрийте всі скрині, вирішуючи завдання!</div>
+
+    <div class="chest-container" id="chests-container">
+        <!-- Chests will be generated here -->
+    </div>
+
+    <!-- Fireworks container (hidden initially) -->
+    <div id="fireworks" class="pyro" style="display: none;">
+        <div class="before"></div>
+        <div class="after"></div>
+    </div>
+
+    <div id="game-modal">
+        <div class="modal-content">
+            <h2 id="modal-title" class="text-2xl font-bold mb-4 text-amber-700">Рівень 1</h2>
+            <div id="question-container" class="mb-4 text-lg text-gray-800">
+                <!-- Question content goes here -->
+            </div>
+            
+            <div id="input-container" class="mb-4">
+                <!-- Input elements go here -->
+            </div>
+
+            <div id="message-box"></div>
+
+            <div class="flex justify-between mt-6">
+                <button id="btn-close-modal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-gray-800 font-bold">Закрити</button>
+                <button id="btn-submit" class="btn-action">Відповісти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center z-50">
+        <div class="bg-white p-8 rounded-3xl text-center max-w-md w-11/12 border-8 border-yellow-400">
+            <h1 class="text-4xl font-black text-yellow-600 mb-4">Перемога!</h1>
+            <p class="text-xl mb-6">Ви відкрили всі скрині та знайшли математичні скарби!</p>
+            <i class="fas fa-trophy text-6xl text-yellow-500 mb-6"></i>
+            <br>
+            <button id="btn-restart" class="btn-action text-xl px-8 py-3">Грати ще раз</button>
+        </div>
+    </div>
+
+    <script>
+        // Game Data Structure
+        const gameData = [
+            {
+                level: 1,
+                title: "Рівень 1: Значення цифр",
+                context: "Число: 678456032",
+                questions: [
+                    { q: "Яка цифра стоїть у розряді одиниць мільйонів?", a: "8", type: "text" },
+                    { q: "Яка цифра стоїть у розряді сотень тисяч?", a: "4", type: "text" },
+                    { q: "Яка цифра стоїть у розряді десятків?", a: "3", type: "text" }
+                ]
+            },
+            {
+                level: 2,
+                title: "Рівень 2: Запис чисел",
+                context: "Запиши цифрами число:",
+                questions: [
+                    { q: "Дванадцять мільйонів двадцять п'ять", a: "12000025", type: "text" },
+                    { q: "Сто тридцять два мільйони шістнадцять тисяч дванадцять", a: "132016012", type: "text" },
+                    { q: "Тридцять мільйонів чотириста тисяч двадцять", a: "30400020", type: "text" }
+                ]
+            },
+            {
+                level: 3,
+                title: "Рівень 3: Порівняння",
+                context: "Обери правильний знак (>, <, =):",
+                questions: [
+                    { left: "174", right: "147", a: ">", type: "compare" },
+                    { left: "2001", right: "999", a: ">", type: "compare" },
+                    { left: "4356 м", right: "5 км", a: "<", type: "compare" }
+                ]
+            },
+            {
+                level: 4,
+                title: "Рівень 4: Задача",
+                context: "",
+                questions: [
+                    { 
+                        q: "Довжина прямокутника 12 см, а ширина - на 2 см менша. Чому дорівнює периметр прямокутника?", 
+                        options: ["40 см", "44 см", "22 см"],
+                        a: "44 см", // (12 + (12-2)) * 2 = (12 + 10) * 2 = 44
+                        type: "multiple"
+                    }
+                ]
+            }
+        ];
+
+        let currentLevelIndex = 0; // 0 to 3
+        let currentQuestionIndex = 0;
+        let unlockedLevels = 0; // How many levels are fully completed (opened chests)
+
+        const chestsContainer = document.getElementById('chests-container');
+        const modal = document.getElementById('game-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const questionContainer = document.getElementById('question-container');
+        const inputContainer = document.getElementById('input-container');
+        const submitBtn = document.getElementById('btn-submit');
+        const closeModalBtn = document.getElementById('btn-close-modal');
+        const messageBox = document.getElementById('message-box');
+        const victoryModal = document.getElementById('victory-modal');
+        const fireworks = document.getElementById('fireworks');
+
+        // SVG definitions for Chests
+        const closedChestSVG = `
+            <svg class="chest-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Base -->
+                <path d="M10,50 L90,50 L90,90 C90,95 85,95 85,95 L15,95 C15,95 10,95 10,90 Z" fill="#8B4513" stroke="#3e1f08" stroke-width="2"/>
+                <!-- Wood planks lines -->
+                <line x1="10" y1="65" x2="90" y2="65" stroke="#5c2e0b" stroke-width="1.5"/>
+                <line x1="10" y1="80" x2="90" y2="80" stroke="#5c2e0b" stroke-width="1.5"/>
+                <!-- Lid (Closed) -->
+                <path d="M10,50 L90,50 C90,20 10,20 10,50 Z" fill="#A0522D" stroke="#3e1f08" stroke-width="2"/>
+                <!-- Metal bands -->
+                <path d="M25,25 L25,95" stroke="#C0C0C0" stroke-width="4" fill="none"/>
+                <path d="M75,25 L75,95" stroke="#C0C0C0" stroke-width="4" fill="none"/>
+                <path d="M10,50 L90,50" stroke="#C0C0C0" stroke-width="3" fill="none"/>
+                <!-- Lock -->
+                <rect x="42" y="42" width="16" height="16" fill="#FFD700" stroke="#B8860B" stroke-width="1" rx="2"/>
+                <circle cx="50" cy="50" r="3" fill="#333"/>
+                <path d="M49,50 L49,55 L51,55 L51,50 Z" fill="#333"/>
+            </svg>
+        `;
+
+        const openedChestSVG = `
+            <svg class="chest-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Base -->
+                <path d="M10,50 L90,50 L90,90 C90,95 85,95 85,95 L15,95 C15,95 10,95 10,90 Z" fill="#8B4513" stroke="#3e1f08" stroke-width="2"/>
+                <!-- Gold inside -->
+                <ellipse cx="50" cy="45" rx="35" ry="15" fill="#FFD700"/>
+                <circle cx="35" cy="40" r="5" fill="#FFA500"/>
+                <circle cx="65" cy="42" r="6" fill="#FFA500"/>
+                <circle cx="50" cy="35" r="4" fill="#FFA500"/>
+                <!-- Lid (Opened, tipped back) -->
+                <path d="M10,50 C10,20 90,20 90,50 L80,20 C80,5 20,5 10,20 Z" fill="#8B4513" stroke="#3e1f08" stroke-width="2"/>
+                <!-- Metal bands on base -->
+                <path d="M25,50 L25,95" stroke="#C0C0C0" stroke-width="4" fill="none"/>
+                <path d="M75,50 L75,95" stroke="#C0C0C0" stroke-width="4" fill="none"/>
+                <!-- Lock base -->
+                <rect x="42" y="46" width="16" height="10" fill="#FFD700" stroke="#B8860B" stroke-width="1" rx="2"/>
+            </svg>
+        `;
+
+        function initGame() {
+            unlockedLevels = 0;
+            renderChests();
+            fireworks.style.display = 'none';
+            victoryModal.classList.add('hidden');
+        }
+
+        function renderChests() {
+            chestsContainer.innerHTML = '';
+            gameData.forEach((level, index) => {
+                const chest = document.createElement('div');
+                chest.className = 'chest';
+                
+                // Determine chest state
+                if (index < unlockedLevels) {
+                    // Level completed
+                    chest.classList.add('opened');
+                    chest.innerHTML = openedChestSVG;
+                } else if (index === unlockedLevels) {
+                    // Current playable level
+                    chest.classList.add('active');
+                    chest.innerHTML = closedChestSVG;
+                    chest.onclick = () => openLevelModal(index);
+                } else {
+                    // Locked level
+                    chest.classList.add('disabled');
+                    chest.innerHTML = closedChestSVG;
+                    // Optional: show message on click locked chest
+                    chest.onclick = () => showMainMessage("Спершу відкрийте попередні скрині!");
+                }
+
+                const label = document.createElement('div');
+                label.className = 'level-label';
+                label.innerText = `Рівень ${level.level}`;
+                chest.appendChild(label);
+
+                chestsContainer.appendChild(chest);
+            });
+        }
+
+        function showMainMessage(msg) {
+            const inst = document.getElementById('main-instruction');
+            const oldText = inst.innerText;
+            inst.innerText = msg;
+            inst.style.color = '#c62828';
+            setTimeout(() => {
+                inst.innerText = "Відкрийте всі скрині, вирішуючи завдання!";
+                inst.style.color = '#333';
+            }, 2000);
+        }
+
+        function openLevelModal(levelIndex) {
+            currentLevelIndex = levelIndex;
+            currentQuestionIndex = 0;
+            renderQuestion();
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            hideMessage();
+        }
+
+        function renderQuestion() {
+            const levelData = gameData[currentLevelIndex];
+            const qData = levelData.questions[currentQuestionIndex];
+            
+            modalTitle.innerText = `${levelData.title} (Запитання ${currentQuestionIndex + 1} з ${levelData.questions.length})`;
+            
+            let htmlContext = levelData.context ? `<p class="font-bold mb-2">${levelData.context}</p>` : '';
+            
+            hideMessage();
+            inputContainer.innerHTML = ''; // Clear previous input
+
+            if (qData.type === 'text') {
+                questionContainer.innerHTML = `${htmlContext}<p>${qData.q}</p>`;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'game-input';
+                input.id = 'answer-input';
+                input.autocomplete = 'off';
+                // Add keypress enter support
+                input.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') submitAnswer();
+                });
+                inputContainer.appendChild(input);
+                setTimeout(() => input.focus(), 100);
+
+            } else if (qData.type === 'compare') {
+                questionContainer.innerHTML = htmlContext;
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-center justify-center text-xl font-bold';
+                
+                wrapper.innerHTML = `<span>${qData.left}</span>`;
+                
+                const select = document.createElement('select');
+                select.className = 'compare-select';
+                select.id = 'answer-input';
+                select.innerHTML = `
+                    <option value="?">?</option>
+                    <option value=">">&gt;</option>
+                    <option value="<">&lt;</option>
+                    <option value="=">=</option>
+                `;
+                wrapper.appendChild(select);
+                
+                wrapper.innerHTML += `<span>${qData.right}</span>`;
+                inputContainer.appendChild(wrapper);
+
+            } else if (qData.type === 'multiple') {
+                questionContainer.innerHTML = `${htmlContext}<p>${qData.q}</p>`;
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'flex flex-wrap justify-center mt-4';
+                
+                qData.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => {
+                        // Deselect others
+                        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        // Store answer in a hidden input or dataset
+                        inputContainer.dataset.selected = opt;
+                    };
+                    optionsDiv.appendChild(btn);
+                });
+                // Reset selection
+                inputContainer.dataset.selected = "";
+                inputContainer.appendChild(optionsDiv);
+            }
+        }
+
+        function submitAnswer() {
+            const levelData = gameData[currentLevelIndex];
+            const qData = levelData.questions[currentQuestionIndex];
+            let userAnswer = "";
+
+            if (qData.type === 'text' || qData.type === 'compare') {
+                const inputEl = document.getElementById('answer-input');
+                if(!inputEl) return;
+                userAnswer = inputEl.value.trim().toLowerCase();
+            } else if (qData.type === 'multiple') {
+                userAnswer = inputContainer.dataset.selected || "";
+            }
+
+            if (userAnswer === "" || userAnswer === "?") {
+                showMessage("Будь ласка, введіть або оберіть відповідь.", "error");
+                return;
+            }
+
+            const correctAnswer = qData.a.toString().toLowerCase();
+
+            // Special handling for number input (removing spaces if user typed them)
+            let isCorrect = false;
+            if (qData.type === 'text') {
+                 // Remove spaces for comparison e.g., "12 000 025" -> "12000025"
+                const cleanedUserAnswer = userAnswer.replace(/\s+/g, '');
+                const cleanedCorrect = correctAnswer.replace(/\s+/g, '');
+                isCorrect = (cleanedUserAnswer === cleanedCorrect);
+            } else {
+                isCorrect = (userAnswer === correctAnswer);
+            }
+
+            if (isCorrect) {
+                showMessage("Вірно!", "success");
+                submitBtn.disabled = true;
+                
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < levelData.questions.length) {
+                        // Next question in same level
+                        renderQuestion();
+                    } else {
+                        // Level completed!
+                        levelCompleted();
+                    }
+                }, 1000);
+            } else {
+                showMessage("Невірно, спробуй ще раз!", "error");
+            }
+        }
+
+        function levelCompleted() {
+            closeModal();
+            unlockedLevels++;
+            renderChests();
+
+            if (unlockedLevels >= gameData.length) {
+                // Game Over - Victory
+                setTimeout(() => {
+                    fireworks.style.display = 'block';
+                    victoryModal.classList.remove('hidden');
+                    victoryModal.classList.add('flex');
+                }, 500);
+            }
+        }
+
+        function showMessage(text, type) {
+            messageBox.innerText = text;
+            messageBox.className = type === 'error' ? 'msg-error' : 'msg-success';
+            messageBox.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        // Event Listeners
+        closeModalBtn.addEventListener('click', closeModal);
+        submitBtn.addEventListener('click', submitAnswer);
+        
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            initGame();
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Initialize on load
+        window.onload = initGame;
+
+    </script>
+</body>
+</html>
