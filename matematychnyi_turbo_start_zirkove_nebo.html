@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Математичний турбо-старт — зоряна гра</title>
+<style>
+:root{--white:#f7fbff;--gold:#ffd85a;--blue:#79caff;--panel:#101c4dcc}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--white);background:#070d2a}
+.game{min-height:100vh;position:relative;overflow:hidden;padding:22px 16px 30px;background:radial-gradient(ellipse at 50% 110%,#273c88 0,#101947 45%,#070d2a 78%)}
+.game:before,.game:after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(2px 2px at 12% 18%,#fff 50%,transparent 60%),radial-gradient(2px 2px at 75% 12%,#fff 50%,transparent 60%),radial-gradient(1.5px 1.5px at 38% 26%,#b8e7ff 50%,transparent 60%),radial-gradient(2px 2px at 88% 40%,#fff 50%,transparent 60%),radial-gradient(1px 1px at 20% 65%,#fff 50%,transparent 60%),radial-gradient(2px 2px at 61% 70%,#b8e7ff 50%,transparent 60%),radial-gradient(1.5px 1.5px at 95% 80%,#fff 50%,transparent 60%);background-size:330px 250px}
+.game:after{opacity:.5;transform:translateY(50px) scale(1.2)}
+.content{position:relative;z-index:1;max-width:900px;margin:0 auto}
+header{text-align:center;margin:0 auto 14px}
+h1{font-size:clamp(1.7rem,4vw,2.7rem);margin:8px 0;color:#ffe58b;text-shadow:0 3px 15px #f9bf4460}
+.subtitle{margin:0;color:#d5e6ff}
+.sky{height:140px;position:relative;margin:4px auto 12px;max-width:800px;border:1px solid #ffffff26;border-radius:22px;background:linear-gradient(180deg,#111d51aa,#263b7b55);overflow:hidden}
+.sky-label{position:absolute;left:14px;top:10px;font-size:.8rem;color:#d6e5ff;letter-spacing:.08em}
+.sky-star{position:absolute;color:var(--gold);font-size:clamp(23px,4vw,35px);filter:drop-shadow(0 0 8px #ffd85a80);transition:transform .8s ease,opacity .8s ease,left .8s ease,top .8s ease}
+.sky-star.taken{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.1) rotate(220deg)}
+.panel{max-width:720px;margin:0 auto;background:var(--panel);border:1px solid #ffffff35;border-radius:22px;padding:22px;box-shadow:0 14px 40px #0004;backdrop-filter:blur(8px)}
+.progressline{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#cfe2ff;font-size:.95rem}
+.progress{height:8px;background:#ffffff24;border-radius:99px;overflow:hidden;margin:10px 0 18px}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#71d7ff,#ffe27b);transition:width .3s}
+.question{font-size:clamp(1.25rem,3vw,1.7rem);font-weight:700;text-align:center;margin:14px 0 22px;min-height:60px}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.option{border:1px solid #ffffff45;background:#26396d;color:#fff;border-radius:14px;padding:14px 12px;font-size:1.08rem;cursor:pointer;min-height:56px;transition:transform .15s,background .15s,border .15s}
+.option:hover:not(:disabled){transform:translateY(-2px);background:#354c8a}
+.option:disabled{cursor:default;opacity:.85}
+.option.right{background:#166b61;border-color:#8ff0c7}
+.option.wrong{background:#74334d;border-color:#ffb4bf}
+.feedback{text-align:center;min-height:30px;margin:15px 0 3px;font-weight:700;color:#ffe58b}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+button.main{background:linear-gradient(135deg,#ffe58b,#ffbd51);color:#20254a;border:0;border-radius:12px;padding:12px 20px;font-weight:800;font-size:1rem;cursor:pointer}
+button.main:disabled{opacity:.45;cursor:default}
+.basket-area{display:flex;justify-content:center;align-items:center;gap:12px;margin:18px auto 0;min-height:76px;color:#dbe8ff}
+.basket{font-size:2.5rem;filter:drop-shadow(0 4px 8px #0005)}
+.basket-count{font-weight:700;color:#ffe58b}
+.result{display:none;text-align:center;padding:12px 4px 2px}
+.result h2{color:#ffe58b;font-size:1.8rem;margin:8px 0}
+.result p{font-size:1.15rem}
+.score{font-size:2.2rem;font-weight:900;color:#8fe4ff}
+.small{font-size:.88rem;color:#c5d7ff;text-align:center;margin:16px auto 0}
+@keyframes twinkle{0%,100%{opacity:.65}50%{opacity:1}}
+@media(max-width:520px){.panel{padding:16px}.options{grid-template-columns:1fr}.sky{height:118px}.question{min-height:45px}.option{padding:12px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="game">
+ <div class="content">
+  <header>
+   <h1>⭐ Математичний турбо-старт!</h1>
+   <p class="subtitle">Відповідай на запитання та збирай зорі у чарівний кошик</p>
+  </header>
+  <div class="sky" id="sky" aria-label="Зоряне небо">
+   <span class="sky-label">ТВОЄ ЗОРЯНЕ НЕБО</span>
+  </div>
+  <section class="panel">
+   <div id="quiz">
+    <div class="progressline"><span id="counter">Запитання 1 із 10</span><span id="miniScore">Зірочок у кошику: 0</span></div>
+    <div class="progress"><span id="bar"></span></div>
+    <div class="question" id="question">Готовий? Починаємо!</div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback" aria-live="polite">Обери одну відповідь.</div>
+    <div class="actions"><button class="main" id="next" disabled>Наступне запитання →</button></div>
+   </div>
+   <div class="result" id="result">
+    <h2>Чарівне повернення зірок!</h2>
+    <p>Усі зібрані зірочки повертаються на небо…</p>
+    <div class="score" id="score">0 із 10</div>
+    <p id="message"></p>
+    <div class="actions"><button class="main" id="again">Зіграти ще раз ↻</button></div>
+   </div>
+  </section>
+  <div class="basket-area"><span class="basket" aria-hidden="true">🧺</span><span><strong>Чарівний кошик</strong><br><span class="basket-count" id="basketText">У кошику поки 0 зірочок</span></span></div>
+  <p class="small">Пам’ятай: тут важливі не швидкість, а уважність і гарний настрій ✨</p>
+ </div>
+</div>
+<script>
+const questions = [
+ {q:"Скільки буде 7 + 8?", options:["14","15","16","17"], a:1},
+ {q:"Яке число на 10 більше за 35?", options:["25","40","45","55"], a:2},
+ {q:"Скільки буде 6 · 4?", options:["20","24","28","64"], a:1},
+ {q:"Продовж ряд: 20, 25, 30, …", options:["32","34","35","40"], a:2},
+ {q:"Скільки кутів має трикутник?", options:["2","3","4","5"], a:1},
+ {q:"Правда чи пастка: 9 · 5 = 45", options:["Правда","Пастка"], a:0},
+ {q:"Правда чи пастка: квадрат числа 4 дорівнює 8", options:["Правда","Пастка"], a:1},
+ {q:"Обчисли: 100 − 37", options:["53","63","67","73"], a:1},
+ {q:"У числі 5 482 цифра 5 означає п’ять сотень. Правда чи пастка?", options:["Правда","Пастка"], a:1},
+ {q:"Правда чи пастка: 3² = 9", options:["Правда","Пастка"], a:0}
+];
+const sky=document.getElementById('sky'), optionsEl=document.getElementById('options');
+let index=0, score=0, answered=false, starEls=[];
+function makeStars(){
+ sky.querySelectorAll('.sky-star').forEach(e=>e.remove());starEls=[];
+ for(let i=0;i<10;i++){
+  const s=document.createElement('span');s.className='sky-star';s.textContent='★';
+  s.style.left=(5+Math.random()*88)+'%';s.style.top=(24+Math.random()*58)+'%';
+  s.style.animation=`twinkle ${1.2+Math.random()*1.8}s ease-in-out infinite`;
+  s.style.transform=`rotate(${Math.random()*35-17}deg)`;
+  sky.appendChild(s);starEls.push(s);
+ }
+}
+function render(){
+ answered=false;
+ const item=questions[index];
+ document.getElementById('counter').textContent=`Запитання ${index+1} із ${questions.length}`;
+ document.getElementById('miniScore').textContent=`Зірочок у кошику: ${score}`;
+ document.getElementById('bar').style.width=(index/questions.length*100)+'%';
+ document.getElementById('question').textContent=item.q;
+ document.getElementById('feedback').textContent='Обери одну відповідь.';
+ optionsEl.innerHTML='';
+ item.options.forEach((txt,i)=>{
+  const b=document.createElement('button');b.className='option';b.textContent=txt;
+  b.onclick=()=>choose(i,b);optionsEl.appendChild(b);
+ });
+ document.getElementById('next').disabled=true;
+ document.getElementById('next').textContent=index===questions.length-1?'Завершити гру ✨':'Наступне запитання →';
+}
+function choose(choice,btn){
+ if(answered)return;answered=true;
+ const item=questions[index], buttons=[...optionsEl.querySelectorAll('button')];
+ buttons.forEach((b,i)=>{b.disabled=true;if(i===item.a)b.classList.add('right')});
+ if(choice===item.a){
+  score++;document.getElementById('feedback').textContent='Правильно! Зірочка летить у кошик! ⭐';
+  const star=starEls.find(s=>!s.classList.contains('taken'));
+  if(star){
+   const skyRect=sky.getBoundingClientRect(), basket=document.querySelector('.basket').getBoundingClientRect();
+   const sx=star.getBoundingClientRect().left, sy=star.getBoundingClientRect().top;
+   star.style.setProperty('--dx',(basket.left+basket.width/2-sx)+'px');
+   star.style.setProperty('--dy',(basket.top+10-sy)+'px');
+   star.classList.add('taken');
+  }
+ }else{
+  btn.classList.add('wrong');document.getElementById('feedback').textContent='Не цього разу! Правильну відповідь підсвічено — рухаємось далі.';
+ }
+ document.getElementById('miniScore').textContent=`Зірочок у кошику: ${score}`;
+ document.getElementById('basketText').textContent=`У кошику ${score} ${score===1?'зірочка':score>=2&&score<=4?'зірочки':'зірочок'}`;
+ document.getElementById('next').disabled=false;
+}
+document.getElementById('next').onclick=()=>{
+ if(!answered)return;
+ if(index<questions.length-1){index++;render()}else finish();
+};
+function finish(){
+ document.getElementById('quiz').style.display='none';
+ const res=document.getElementById('result');res.style.display='block';
+ document.getElementById('score').textContent=`${score} із ${questions.length} правильних відповідей`;
+ document.getElementById('message').textContent=score===questions.length?'Неймовірно! Усі зірочки твої!':score>=7?'Чудова робота! Твоє небо сяє!':score>=4?'Гарний старт! Ще трохи практики — і буде ще краще!':'Дякую за старання! Кожна спроба допомагає вчитися.';
+ document.getElementById('bar').style.width='100%';
+ // Animate all stars back into the sky and restore the ones collected.
+ const taken=starEls.filter(s=>s.classList.contains('taken'));
+ taken.forEach((s,i)=>{
+  s.style.transitionDelay=(i*90)+'ms';
+  s.style.setProperty('--dx','0px');s.style.setProperty('--dy','0px');
+  s.classList.remove('taken');
+  s.style.left=(7+(i%5)*19)+'%';s.style.top=(25+Math.floor(i/5)*35)+'%';
+ });
+ document.getElementById('basketText').textContent=`На небо повернулося ${score} ${score===1?'зірочка':score>=2&&score<=4?'зірочки':'зірочок'}`;
+}
+document.getElementById('again').onclick=()=>{
+ index=0;score=0;document.getElementById('result').style.display='none';document.getElementById('quiz').style.display='block';
+ document.getElementById('basketText').textContent='У кошику поки 0 зірочок';makeStars();render();
+};
+makeStars();render();
+</script>
+</body>
+</html>
