@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Геловінський математичний квест — 5 клас</title>
+<style>
+:root{--night:#151025;--panel:#241934;--orange:#ff9f1c;--purple:#9a6bdb;--cream:#fff3d8;--muted:#cbbbe1;--green:#a7f2b4;--red:#ffaaa5}
+*{box-sizing:border-box}body{margin:0;color:var(--cream);font:16px/1.5 Arial,sans-serif;background:
+radial-gradient(circle at 12% 16%,#ffd87530 0 2px,transparent 3px),
+radial-gradient(circle at 82% 12%,#f5d7ff35 0 2px,transparent 3px),
+radial-gradient(circle at 72% 44%,#ffd87524 0 2px,transparent 3px),
+radial-gradient(circle at 22% 72%,#d7c4ff28 0 2px,transparent 3px),
+radial-gradient(ellipse at 50% 0%,#593b82 0%,transparent 45%),
+radial-gradient(ellipse at 90% 75%,#6a321f 0%,transparent 30%),
+linear-gradient(145deg,#100d28,#241333 55%,#171025)}
+header{text-align:center;padding:26px 15px 18px;background:linear-gradient(180deg,#160f2deF,#21132edb);border-bottom:2px solid #9c6ed1;box-shadow:0 5px 28px #d29aff20}.emoji{font-size:38px;letter-spacing:8px;filter:drop-shadow(0 0 9px #ffb22e66)}h1{margin:5px 0;color:var(--orange);font-size:clamp(27px,5vw,44px)}header p{color:var(--muted);margin:5px auto;max-width:720px}
+main{max-width:940px;margin:auto;padding:18px 14px 50px}.panel{background:linear-gradient(145deg,#302044f5,#21172ff5);border:1px solid #9a6ac2;border-radius:18px;padding:17px;margin:14px 0;box-shadow:0 0 0 1px #f1d4ff0c,0 8px 28px #0005,0 0 24px #a15ce21b;position:relative;overflow:hidden}.panel:before{content:"✦  ·  ✧";position:absolute;right:14px;top:8px;color:#ffcf72;opacity:.42;font-size:17px;pointer-events:none}h2{color:#ffc36d;margin:0 0 8px;font-size:22px}.stats{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.pill{background:#3b2851;border:1px solid #745394;border-radius:99px;padding:7px 12px;font-weight:bold}
+button{border:0;border-radius:9px;padding:11px 15px;background:var(--orange);color:#26152e;font-weight:bold;font-size:15px;cursor:pointer}button.secondary{background:#4b3564;color:var(--cream);border:1px solid #8062a1}.progress{height:10px;background:#453255;border-radius:99px;overflow:hidden;margin:9px 0}.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--orange));transition:width .3s}
+.stage{background:#2c203d;border:1px solid #62477a;border-radius:11px;padding:12px;margin:10px 0}.stage p{margin:0 0 8px}.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}.choice{display:flex;align-items:flex-start;gap:7px;padding:9px;border-radius:8px;background:#38284b;border:1px solid #6c5085;font-weight:normal}.choice input{margin-top:5px;accent-color:var(--orange)}input[type=text],textarea,select{width:100%;background:#fff4dc;color:#291a31;border:1px solid #d8bb7d;border-radius:8px;padding:10px;font:inherit}textarea{min-height:70px;resize:vertical}.feedback{display:none;padding:11px;border-radius:9px;margin-top:10px;line-height:1.6}.feedback.show{display:block}.good{background:#183c2a;border:1px solid #4b9b65;color:#d9ffe0}.bad{background:#4a252b;border:1px solid #b65b61;color:#ffe0dc}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.mini{border:1px solid #644b7c;border-radius:9px;padding:10px;background:#302241}.mini label{display:block;margin:5px 0;font-weight:bold}.expression{white-space:nowrap;text-align:center;font-size:clamp(17px,3vw,22px);font-weight:bold;color:#ffd27b;padding:8px 2px 12px;text-shadow:0 0 10px #ffb43d38;overflow-x:auto}.tiny{font-size:13px;color:var(--muted)}.final{text-align:center}.hidden{display:none}
+@media(max-width:600px){.emoji{font-size:29px}.panel{padding:13px}}
+@media print{body{background:white;color:#222}.panel,.stage,.mini{background:white;color:#222;border-color:#999;box-shadow:none}header{background:white}button{display:none}}
+</style></head>
+<body>
+<header><div class="emoji">🎃 🦇 👻 🕸️</div><h1>Геловінський математичний квест</h1><p>У замку зникли цифри! Допоможи відьмочці Матеманді відновити магічні формули, розгадати таємниці чисел і відкрити гарбузову скриню.</p></header>
+<main>
+<section class="panel"><h2>🌙 Твоя місія</h2><p>Пройди 4 кімнати замку. За кожне випробування отримуй гарбузові бали. Наприкінці побачиш результат і правильні відповіді.</p><div class="stats"><span class="pill">⭐ Бали: <span id="score">0</span>/20</span><span class="pill">🗝️ Кімнати: <span id="rooms">0</span>/4</span><span class="pill">🔮 Спроби: <span id="tries">0</span></span></div><div class="progress"><div id="bar"></div></div><p class="tiny">Можна змінювати відповіді й перевіряти знову. Натискай кнопку в кожній кімнаті.</p></section>
+
+<section class="panel"><h2>🧟 Кімната 1. Заклинання множення</h2><p>Обери правильні відповіді.</p>
+<div class="stage"><p><b>1.1.</b> Обчисли 231 · 36.</p><div class="choices"><label class="choice"><input type="radio" name="q11" value="7316">А. 7316</label><label class="choice"><input type="radio" name="q11" value="8316">Б. 8316</label><label class="choice"><input type="radio" name="q11" value="8216">В. 8216</label><label class="choice"><input type="radio" name="q11" value="7216">Г. 7216</label></div></div>
+<div class="stage"><p><b>1.2.</b> Який запис відповідає добутку 9 · 9 · 9?</p><div class="choices"><label class="choice"><input type="radio" name="q12" value="9³">А. 9³</label><label class="choice"><input type="radio" name="q12" value="3⁹">Б. 3⁹</label><label class="choice"><input type="radio" name="q12" value="9²">В. 9²</label><label class="choice"><input type="radio" name="q12" value="2⁹">Г. 2⁹</label></div></div>
+<button onclick="checkRoom1()">Перевірити заклинання</button><div id="f1" class="feedback"></div></section>
+
+<section class="panel"><h2>🕷️ Кімната 2. Таємниця остачі</h2><p>Обери правильну відповідь у кожному завданні.</p>
+<div class="stage"><p><b>2.1.</b> Яку остачу отримаємо при діленні 20 на 6?</p><div class="choices"><label class="choice"><input type="radio" name="q21" value="1">А. 1</label><label class="choice"><input type="radio" name="q21" value="2">Б. 2</label><label class="choice"><input type="radio" name="q21" value="3">В. 3</label><label class="choice"><input type="radio" name="q21" value="4">Г. 4</label></div></div>
+<div class="stage"><p><b>2.2.</b> Обчисли 47 150 : 23.</p><div class="choices"><label class="choice"><input type="radio" name="q22" value="205">А. 205</label><label class="choice"><input type="radio" name="q22" value="250">Б. 250</label><label class="choice"><input type="radio" name="q22" value="2050">В. 2050</label><label class="choice"><input type="radio" name="q22" value="25">Г. 25</label></div></div>
+<button onclick="checkRoom2()">Відкрити замок</button><div id="f2" class="feedback"></div></section>
+
+<section class="panel"><h2>🧪 Кімната 3. Майстерня відьмочки</h2><p>Впиши результати спрощення виразів та обчислень.</p>
+<div class="grid">
+<div class="mini"><label>3.1. Спрости: 3a + 5a</label><input id="q31" type="text" placeholder="Відповідь"></div>
+<div class="mini"><label>3.2. Спрости: 7x + x − 2x</label><input id="q32" type="text" placeholder="Відповідь"></div>
+<div class="mini"><label>3.3. Обчисли зручно:</label><div class="expression">2 · 27 · 50</div><input id="q33" type="text" placeholder="Відповідь"></div>
+<div class="mini"><label>3.4. Обчисли зручно:</label><div class="expression">37 · 42 + 37 · 58</div><input id="q34" type="text" placeholder="Відповідь"></div>
+</div><button onclick="checkRoom3()">Змішати зілля</button><div id="f3" class="feedback"></div></section>
+
+<section class="panel"><h2>🚂 Кімната 4. Експрес-привид</h2><p>Розв’яжи задачі, щоб дістатися до скрині. Запиши дію або відповідь у кожне поле.</p>
+<div class="stage"><p><b>4.1.</b> Спрости вираз 4x · 25 і знайди його значення, якщо x = 115.</p><label class="tiny">Значення виразу</label><input id="q42" type="text" placeholder="Впиши відповідь"></div>
+<div class="stage"><p><b>4.2.</b> Пасажирський поїзд долає 480 км за 8 год. Експрес рухається на 20 км/год швидше. За скільки годин експрес подолає 480 км?</p><div class="grid"><div class="mini"><label>Дія 1. Швидкість пасажирського поїзда</label><input id="q43" type="text" placeholder="Дія та результат"></div><div class="mini"><label>Дія 2. Швидкість експреса</label><input id="q44" type="text" placeholder="Дія та результат"></div><div class="mini"><label>Дія 3. Час експреса</label><input id="q45" type="text" placeholder="Дія та результат"></div></div><label class="tiny">Відповідь до задачі</label><input id="q46" type="text" placeholder="Відповідь"></div>
+<div class="stage"><p><b>4.3.</b> Як зміниться добуток, якщо один множник збільшити в 9 разів, а другий зменшити втричі?</p><div class="choices"><label class="choice"><input type="radio" name="q47" value="3">А. Збільшиться в 3 рази</label><label class="choice"><input type="radio" name="q47" value="27">Б. Збільшиться в 27 разів</label><label class="choice"><input type="radio" name="q47" value="same">В. Не зміниться</label><label class="choice"><input type="radio" name="q47" value="down">Г. Зменшиться в 3 рази</label></div></div>
+<button onclick="checkRoom4()">Відкрити скриню</button><div id="f4" class="feedback"></div></section>
+
+<section class="panel final"><div style="font-size:48px">🎃🔓</div><h2>Фінал квесту</h2><p id="ending">Виконай усі кімнати, щоб побачити підсумок.</p><button class="secondary" onclick="resetGame()">Почати спочатку</button></section>
+</main>
+<script>
+let scores=[0,0,0,0],completed=[false,false,false,false],tries=0;
+function chosen(n){let e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:''}
+function val(id){return document.getElementById(id).value.trim().toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/,/g,'.')}
+function show(id,msg,ok){let e=document.getElementById(id);e.className='feedback show '+(ok?'good':'bad');e.innerHTML=msg}
+function update(){document.getElementById('score').textContent=scores.reduce((a,b)=>a+b,0);document.getElementById('rooms').textContent=completed.filter(Boolean).length;document.getElementById('tries').textContent=tries;document.getElementById('bar').style.width=(completed.filter(Boolean).length/4*100)+'%';let s=scores.reduce((a,b)=>a+b,0);document.getElementById('ending').textContent=completed.every(Boolean)?`Квест завершено! Твій результат: ${s}/20 балів. ${s>=17?'Ти — головний математичний чарівник!':s>=12?'Чудова робота! Магія чисел тобі підкоряється.':'Спробуй ще раз — кожна спроба додає досвіду!'}`:'Виконай усі кімнати, щоб побачити підсумок.'}
+function checkRoom1(){tries++;let a=chosen('q11')==='8316',b=chosen('q12')==='9³';scores[0]=[a,b].filter(Boolean).length*2;completed[0]=!!chosen('q11')&&!!chosen('q12');show('f1',`Правильно: ${[a,b].filter(Boolean).length} із 2.<br>1.1 — Б, 8316. 1.2 — А, 9³.`,a&&b);update()}
+function checkRoom2(){tries++;let a=chosen('q21')==='2',b=chosen('q22')==='2050';scores[1]=[a,b].filter(Boolean).length*2;completed[1]=!!chosen('q21')&&!!chosen('q22');show('f2',`Правильно: ${[a,b].filter(Boolean).length} із 2.<br>2.1 — Б: 20 = 6 · 3 + 2. 2.2 — В: 47 150 : 23 = 2050.`,a&&b);update()}
+function checkRoom3(){tries++;let tests=[['q31',['8a','8*a']],['q32',['6x','6*x']],['q33',['2700']],['q34',['3700']]],n=0,answered=0;tests.forEach(([id,answers])=>{let v=val(id);if(v)answered++;let ok=answers.includes(v);if(ok)n++;document.getElementById(id).style.borderColor=ok?'#74d48b':v?'#ff8b82':''});scores[2]=n;completed[2]=answered===4;show('f3',`Правильно: ${n} із 4.<br>Відповіді: 8a; 6x; 2700; 3700.`,n===4);update()}
+function checkRoom4(){tries++;let checks=[val('q42')==='11500',val('q43').includes('60'),val('q44').includes('80'),val('q45').includes('6'),val('q46').includes('6'),chosen('q47')==='3'];let answered=[val('q42'),val('q43'),val('q44'),val('q45'),val('q46'),chosen('q47')].filter(Boolean).length;scores[3]=checks.filter(Boolean).length*2;completed[3]=answered===7;show('f4',`Правильно: ${checks.filter(Boolean).length} із 7 пунктів.<br>4.1: 11 500. 4.2: 480 : 8 = 60 км/год; 60 + 20 = 80 км/год; 480 : 80 = 6 год. 4.3 — А: добуток збільшиться в 3 рази.`,checks.every(Boolean));update()}
+function resetGame(){scores=[0,0,0,0];completed=[false,false,false,false];tries=0;document.querySelectorAll('input').forEach(e=>{if(e.type==='radio')e.checked=false;else e.value='';e.style.borderColor=''});document.querySelectorAll('.feedback').forEach(e=>{e.className='feedback';e.innerHTML=''});update();window.scrollTo({top:0,behavior:'smooth'})}
+update();
+</script></body></html>
