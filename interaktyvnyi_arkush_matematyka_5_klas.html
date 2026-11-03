@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Інтерактивний аркуш з математики — 5 клас</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#78aeca;--ink:#24384a;--pink:#f7e5ec;--green:#dff2e6;--red:#f9e2e2}
+body{margin:0;color:var(--ink);font-family:"Trebuchet MS",Arial,sans-serif;
+background-color:#f8fcff;
+background-image:linear-gradient(#d9eaf3 1px,transparent 1px),linear-gradient(90deg,#d9eaf3 1px,transparent 1px);
+background-size:26px 26px}
+.page{max-width:1050px;margin:24px auto;padding:24px clamp(14px,3vw,34px) 34px;background:#ffffffed;
+border:1px solid #c9dce8;border-radius:18px;box-shadow:0 8px 28px #47657a20}
+header{text-align:center;padding:4px 8px 18px;border-bottom:2px dashed #b9d4e3}
+h1{margin:0 0 8px;font-size:clamp(24px,4vw,36px);color:#426e8a}
+.sub{margin:0;font-size:16px;line-height:1.5}
+.name{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.name input{width:230px}
+.task{margin:20px 0;padding:17px 18px;border:1px solid #c8dce8;border-radius:15px;
+background:linear-gradient(120deg,#fff,#fafdff);box-shadow:0 3px 10px #426e8a0c}
+.task h2{font-size:19px;margin:0 0 10px;color:#3f7697}
+.prompt{font-size:16px;line-height:1.55;margin:7px 0 12px}
+.subtask{margin:12px 0;padding:10px 12px;background:#f3f9fc;border-left:4px solid #a9cddd;border-radius:8px}
+.answerline{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.answerline label{font-size:14px;font-weight:700}
+input[type=text],input[type=number]{border:1.5px solid #9dbed0;border-radius:8px;padding:9px 10px;font:inherit;background:#fff;min-width:130px;max-width:100%}
+input.short{width:76px;min-width:76px;text-align:center;font-weight:700}
+input.medium{width:180px}
+input.long{width:min(420px,100%)}
+input:focus{outline:3px solid #cfe8f5;border-color:#5e9abd}
+.feedback{font-weight:900;letter-spacing:.3px;margin-left:5px;min-width:120px}
+.good{color:#21834b}.bad{color:#c04b55}
+.actions{text-align:center;margin:26px 0 8px}
+button{border:0;border-radius:999px;background:#477f9e;color:white;font-weight:800;font-size:18px;padding:13px 30px;cursor:pointer;box-shadow:0 5px 12px #426e8a30}
+button:hover{background:#356984}
+#summary{margin-top:14px;font-weight:800;text-align:center;min-height:25px}
+.note{font-size:13px;text-align:center;color:#668093;margin-top:18px}
+@media(max-width:600px){.page{margin:8px;padding:16px 11px}.task{padding:13px}.prompt{font-size:15px}.feedback{width:100%;margin-left:0}}
+</style>
+</head>
+<body>
+<main class="page">
+<header>
+<h1>📘 Математичний тренажер</h1>
+<p class="sub">Виконай завдання. Запиши відповіді у комірки, а наприкінці натисни <b>«Перевірка»</b>.</p>
+<div class="name"><label for="student">Ім’я учня / учениці:</label><input id="student" type="text" placeholder="Впиши своє ім’я"></div>
+</header>
+
+<section class="task" data-task="1">
+<h2>Завдання 1. Депозит</h2>
+<p class="prompt">Денис поклав на депозитний рахунок банку всі гроші, які йому подарували на день народження. Через рік банк сплатив йому 2380 грн відсоткових грошей. Скільки всього грошей буде у хлопця після цих виплат, якщо на свято йому подарували 12 678 грн?</p>
+<div class="answerline"><label>Відповідь:</label><input class="short" data-answer="15058" type="text" inputmode="numeric" placeholder="грн"><span>грн</span><span class="feedback"></span></div>
+</section>
+
+<section class="task" data-task="2">
+<h2>Завдання 2. Покупка кавомашини</h2>
+<p class="prompt">Пані Тетяна вирішила придбати кавомашину, ціна якої 25 669 грн. Перевіривши рахунок на банківській картці, вона з’ясувала, що для здійснення покупки не вистачає 1287 грн. Скільки коштів було на картці у жінки?</p>
+<div class="answerline"><label>Відповідь:</label><input class="short" data-answer="24382" type="text" inputmode="numeric" placeholder="грн"><span>грн</span><span class="feedback"></span></div>
+</section>
+
+<section class="task" data-task="3">
+<h2>Завдання 3. Продаж телефонів</h2>
+<p class="prompt">Після випуску нової марки телефона значно зріс попит серед покупців. У магазині за червень продали 547 телефонів, а за все літо — у 17 разів більше. Скільки телефонів продали за літо?</p>
+<div class="answerline"><label>Відповідь:</label><input class="short" data-answer="9299" type="text" inputmode="numeric"><span>телефонів</span><span class="feedback"></span></div>
+</section>
+
+<section class="task" data-task="4">
+<h2>Завдання 4. Ігрова валюта</h2>
+<p class="prompt">Сашко та Роман полюбляють грати в комп’ютерну гру. На рахунку Сашка 744 кракси (ігрова валюта), а у Романа — в 6 разів менше. Скільки краксів у Романа?</p>
+<div class="answerline"><label>Відповідь:</label><input class="short" data-answer="124" type="text" inputmode="numeric"><span>краксів</span><span class="feedback"></span></div>
+</section>
+
+<section class="task" data-task="5">
+<h2>Завдання 5. Утвори буквенний вираз</h2>
+<p class="prompt">Установи відповідність між висловами та буквеними виразами. У кожну комірку впиши відповідну літеру (А, Б, В, Г або Д).</p>
+<div class="subtask">
+<p>1) Добуток суми чисел <i>x</i> і 3 та числа <i>y</i></p>
+<p>2) Сума добутку чисел <i>x</i> і 3 та числа <i>y</i></p>
+<p>3) Частка числа <i>y</i> та різниці чисел <i>x</i> і 3</p>
+<p>4) Різниця числа <i>y</i> та частки чисел <i>x</i> і 3</p>
+<p><b>Варіанти:</b> А) y : (x − 3); Б) (x + 3) · y; В) x · 3 + y; Г) y + (x − 3); Д) y − x : 3.</p>
+<div class="answerline"><label>1)</label><input class="short" data-answer="Б" type="text" maxlength="1" placeholder="літера"><label>2)</label><input class="short" data-answer="В" type="text" maxlength="1" placeholder="літера"><label>3)</label><input class="short" data-answer="А" type="text" maxlength="1" placeholder="літера"><label>4)</label><input class="short" data-answer="Д" type="text" maxlength="1" placeholder="літера"><span class="feedback"></span></div>
+</div>
+</section>
+
+<section class="task" data-task="7">
+<h2>Завдання 7. Обчисли зручним способом</h2>
+<div class="subtask"><p>1) (349 + 856) + 651 =</p><div class="answerline"><label>Відповідь:</label><input class="short" data-answer="1856" type="text" inputmode="numeric"><span class="feedback"></span></div></div>
+<div class="subtask"><p>2) 43 · 89 + 89 · 57 =</p><div class="answerline"><label>Відповідь:</label><input class="short" data-answer="8900" type="text" inputmode="numeric"><span class="feedback"></span></div></div>
+</section>
+
+<section class="task" data-task="8">
+<h2>Завдання 8. Спрости вираз</h2>
+<div class="subtask"><p>1) 238 + 6y + 5y =</p><div class="answerline"><label>Відповідь:</label><input class="long" data-answer="238+11y|11y+238" type="text" placeholder="Наприклад, 2a + 3a = 5a"><span class="feedback"></span></div></div>
+<div class="subtask"><p>2) 8 · c · 12 =</p><div class="answerline"><label>Відповідь:</label><input class="medium" data-answer="96c|96*c|c*96" type="text" placeholder="Спрости вираз"><span class="feedback"></span></div></div>
+</section>
+
+<section class="task" data-task="9">
+<h2>Завдання 9. Літак «Мрія»</h2>
+<p class="prompt">Український літак «Мрія» першого дня перебував у польоті 5 год, а другого — 2 год. Першого дня він пролетів на 2640 км більше, ніж другого. Яку відстань долав літак кожного дня, якщо його швидкість у ці дні була однаковою?</p>
+<div class="subtask"><p>Відстань першого дня:</p><div class="answerline"><input class="short" data-answer="4400" type="text" inputmode="numeric"><span>км</span><span class="feedback"></span></div></div>
+<div class="subtask"><p>Відстань другого дня:</p><div class="answerline"><input class="short" data-answer="1760" type="text" inputmode="numeric"><span>км</span><span class="feedback"></span></div></div>
+</section>
+
+<div class="actions"><button id="check">Перевірка</button><div id="summary" aria-live="polite"></div></div>
+<p class="note">Завдання № 6 пропущено, як ти й просила. Успіхів! 🌷</p>
+</main>
+<script>
+const normalize = s => s.toLowerCase().replace(/\s+/g,'').replace(/,/g,'.').replace(/[·×]/g,'*').replace(/−/g,'-').replace(/:/g,'/').replace(/[()]/g,'');
+document.getElementById('check').addEventListener('click',()=>{
+ let correct=0,total=0;
+ document.querySelectorAll('.task').forEach(task=>{
+   const inputs=[...task.querySelectorAll('input[data-answer]')];
+   let taskOK=true;
+   inputs.forEach(input=>{
+     total++;
+     const accepted=input.dataset.answer.split('|').map(normalize);
+     const value=normalize(input.value);
+     const ok=value!=='' && accepted.includes(value);
+     if(ok) correct++; else taskOK=false;
+     const feedback=input.parentElement.querySelector('.feedback') || task.querySelector('.feedback');
+     if(feedback){
+       // Task 5 has a shared feedback field for its four letter cells.
+       if(task.dataset.task==='5') return;
+       feedback.textContent=ok?'СУПЕР!':'ПОДУМАЙ ЩЕ!';
+       feedback.className='feedback '+(ok?'good':'bad');
+     }
+   });
+   if(task.dataset.task==='5'){
+     const fb=task.querySelector('.feedback');
+     fb.textContent=taskOK?'СУПЕР!':'ПОДУМАЙ ЩЕ!';
+     fb.className='feedback '+(taskOK?'good':'bad');
+   }
+ });
+ const summary=document.getElementById('summary');
+ summary.textContent=`Правильно: ${correct} із ${total}. ${correct===total?'Чудова робота! Усі відповіді правильні!':'Переглянь відповіді з написом «ПОДУМАЙ ЩЕ!» і спробуй знову.'}`;
+});
+</script>
+</body></html>
