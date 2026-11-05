@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Математична гра — Хмаринки із завданнями</title>
+<style>
+:root{--ink:#173b68;--blue:#dff5ff;--line:#b8e3f7}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,#76c9f4 0%,#bce9ff 55%,#e7f8ff 100%);min-height:100vh;overflow-x:hidden}
+.sky{position:relative;max-width:1200px;margin:auto;padding:22px 22px 50px;min-height:100vh}
+h1{text-align:center;margin:8px 0 6px;font-size:clamp(25px,4vw,40px);text-shadow:0 2px 0 #fff8}
+.subtitle{text-align:center;margin:0 0 18px;font-size:17px}
+.sun{position:absolute;right:7%;top:22px;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff9a8,#ffd43b 65%,#ffb51b);box-shadow:0 0 0 13px #ffe36b55,0 0 45px 18px #fff1a6;transition:.5s;z-index:0}
+.sun:before{content:"";position:absolute;inset:-24px;border:8px dotted #ffd54c;border-radius:50%;animation:spin 25s linear infinite}
+.sun.glow{box-shadow:0 0 0 18px #fff6a5aa,0 0 70px 35px #fff5a8;transform:scale(1.12)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress{position:relative;z-index:1;margin:12px auto 24px;background:#ffffffb8;border:2px solid white;border-radius:18px;padding:10px 16px;max-width:520px;text-align:center;font-weight:bold}
+.tasks{position:relative;z-index:1;display:grid;grid-template-columns:1fr;gap:18px;margin-top:20px}
+.task{display:none;position:relative;min-height:260px;background:#ffffffd9;border:3px solid #fff;border-radius:24px;padding:20px 16px 16px;box-shadow:0 8px 0 #5ba8d455;transition:.45s}
+.task.active{display:block;max-width:760px;margin:32px auto 0;min-height:320px;padding:30px 28px}.task h2{font-size:18px;margin:3px 0 12px;line-height:1.3}
+.cloud{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:72px;height:48px;border-radius:35px;background:white;border:2px solid #cceeff;box-shadow:0 4px 0 #8bc8e8;display:grid;place-items:center;font-size:22px;font-weight:900;color:#17649a;transition:.45s}
+.cloud:before,.cloud:after{content:"";position:absolute;background:white;border:2px solid #cceeff;border-bottom:0;width:32px;height:27px;border-radius:50% 50% 0 0;top:-12px}
+.cloud:before{left:9px}.cloud:after{right:8px}
+.cloud span{position:relative;z-index:2}
+.task p{font-size:16px;line-height:1.45;margin:8px 0}
+.answer-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:9px 0}
+input,select{max-width:100%;padding:9px 8px;border:2px solid #8bc9e8;border-radius:10px;background:#fff;font-size:16px;color:#173b68;outline:none} input{width:90px;text-align:center} select{min-width:155px} 
+input:focus{border-color:#287eb3;box-shadow:0 0 0 3px #8bd4ff55}
+input.correct{border-color:#2eaa68;background:#edfff4}
+input.wrong{border-color:#e36b6b;background:#fff0f0}
+.hint{font-size:13px;color:#52718d;min-height:18px}
+button{border:0;border-radius:14px;padding:11px 17px;background:#187bb5;color:white;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #0c5687}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #0c5687}
+.actions{text-align:center;margin:24px 0;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.step-actions{text-align:center;margin:18px auto;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.step-actions button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#message{font-size:20px;font-weight:bold;min-height:30px;text-align:center;color:#174b78}
+.task.solved{opacity:.35;transform:scale(.94);pointer-events:none}
+.task.solved .cloud{opacity:0;transform:translate(-50%,-80px) scale(.2)}
+.task.solved:after{content:"✓";position:absolute;right:14px;top:10px;color:#23975c;font-size:28px;font-weight:bold}
+.note{text-align:center;font-size:13px;color:#315d7e;margin-top:20px}
+@media(max-width:850px){.tasks{grid-template-columns:1fr}.sun{width:75px;height:75px;right:5%;top:15px}}
+@media(max-width:560px){.tasks{grid-template-columns:1fr}.sun{opacity:.55;right:8px}.sky{padding:16px 12px 35px}.task{min-height:unset;margin-top:8px}}
+</style>
+</head>
+<body>
+<main class="sky">
+  <div class="sun" id="sun" aria-label="Сонечко"></div>
+  <h1>Математична мандрівка</h1>
+  <p class="subtitle">Розв’яжи завдання та розжени всі хмаринки!</p>
+  <div class="progress" id="progress">Завдання 1 із 6 · Виконано: 0</div>\n  <div class="step-actions"><button id="prevTask" type="button" disabled>← Назад</button><button id="nextTask" type="button" disabled>Наступне завдання →</button></div>
+  <section class="tasks">
+    <article class="task" data-task="1">
+      <div class="cloud"><span>1</span></div>
+      <h2>Подай добуток у вигляді квадрата або куба</h2>
+      <p>а) <b>b · b</b></p><div class="answer-row"><select aria-label="Відповідь 1а" data-answer="b^2"><option value="">Обери відповідь</option><option value="b^2">b²</option><option value="b^3">b³</option><option value="2b">2b</option></select></div>
+      <p>б) <b>5 · 5 · 5</b></p><div class="answer-row"><select aria-label="Відповідь 1б" data-answer="5^3"><option value="">Обери відповідь</option><option value="5^2">5²</option><option value="5^3">5³</option><option value="3^5">3⁵</option></select></div>
+      <p>в) <b>x · x · x</b></p><div class="answer-row"><select aria-label="Відповідь 1в" data-answer="x^3"><option value="">Обери відповідь</option><option value="x^2">x²</option><option value="3x">3x</option><option value="x^3">x³</option></select></div>
+      <div class="hint"></div>
+    </article>
+    <article class="task" data-task="2">
+      <div class="cloud"><span>2</span></div>
+      <h2>Покупка ручок</h2>
+      <p>Ручка коштує 5 грн. Яку найбільшу кількість ручок можна купити, маючи 37 грн? Скільки грошей залишиться?</p>
+      <div class="answer-row">Кількість: <input aria-label="Кількість ручок" data-answer="7" placeholder="шт."></div>
+      <div class="answer-row">Залишок: <input aria-label="Залишок грошей" data-answer="2" placeholder="грн"></div>
+      <div class="hint"></div>
+    </article>
+    <article class="task" data-task="3">
+      <div class="cloud"><span>3</span></div>
+      <h2>Обчисли значення виразу</h2>
+      <p>(x² + a³) : 4, якщо x = 11; a = 3.</p>
+      <div class="answer-row">Відповідь: <input aria-label="Відповідь завдання 3" data-answer="37" placeholder="Число"></div>
+      <div class="hint"></div>
+    </article>
+    <article class="task" data-task="4">
+      <div class="cloud"><span>4</span></div>
+      <h2>Подай добуток у вигляді квадрата або куба</h2>
+      <p>а) <b>6 · 6 · 6</b></p><div class="answer-row"><select aria-label="Відповідь 4а" data-answer="6^3"><option value="">Обери відповідь</option><option value="6^2">6²</option><option value="6^3">6³</option><option value="3^6">3⁶</option></select></div>
+      <p>б) <b>x · x</b></p><div class="answer-row"><select aria-label="Відповідь 4б" data-answer="x^2"><option value="">Обери відповідь</option><option value="x^2">x²</option><option value="x^3">x³</option><option value="2x">2x</option></select></div>
+      <p>в) <b>a · a · a</b></p><div class="answer-row"><select aria-label="Відповідь 4в" data-answer="a^3"><option value="">Обери відповідь</option><option value="a^2">a²</option><option value="a^3">a³</option><option value="3a">3a</option></select></div>
+      <div class="hint"></div>
+    </article>
+    <article class="task" data-task="5">
+      <div class="cloud"><span>5</span></div>
+      <h2>Покупка альбомів</h2>
+      <p>Альбом для малювання коштує 6 грн. Яку найбільшу кількість альбомів можна купити, маючи 41 грн? Скільки грошей залишиться?</p>
+      <div class="answer-row">Кількість: <input aria-label="Кількість альбомів" data-answer="6" placeholder="шт."></div>
+      <div class="answer-row">Залишок: <input aria-label="Залишок грошей" data-answer="5" placeholder="грн"></div>
+      <div class="hint"></div>
+    </article>
+    <article class="task" data-task="6">
+      <div class="cloud"><span>6</span></div>
+      <h2>Обчисли значення виразу</h2>
+      <p>(m² + b³) : 7, якщо m = 13; b = 3.</p>
+      <div class="answer-row">Відповідь: <input aria-label="Відповідь завдання 6" data-answer="28" placeholder="Число"></div>
+      <div class="hint"></div>
+    </article>
+  </section>
+  <div class="actions"><button id="checkAll">Перевірити відповіді</button> <button id="reset" type="button">Почати знову</button></div>
+  <div id="message" aria-live="polite"></div>
+  <p class="note">Порада: степінь можна записати символом ^, наприклад x^2 або x².</p>
+</main>
+<script>
+const tasks=[...document.querySelectorAll('.task')];
+let current=0;
+const solved=new Set();
+const normalize=s=>String(s).trim().toLowerCase().replace(/\s+/g,'').replace(/[²]/g,'^2').replace(/[³]/g,'^3').replace(/⁰/g,'^0');
+function showTask(index){
+ current=Math.max(0,Math.min(tasks.length-1,index));
+ tasks.forEach((task,i)=>task.classList.toggle('active',i===current));
+ document.getElementById('prevTask').disabled=current===0;
+ document.getElementById('nextTask').disabled=!solved.has(current)||current===tasks.length-1;
+ document.getElementById('nextTask').textContent=current===tasks.length-1?'Усі завдання завершено':'Наступне завдання →';
+ document.getElementById('progress').textContent=`Завдання ${current+1} із ${tasks.length} · Виконано: ${solved.size}`;
+ document.getElementById('message').textContent='';
+}
+function checkCurrent(){
+ const task=tasks[current];
+ if(solved.has(current)) return;
+ const fields=[...task.querySelectorAll('input,select')];
+ let all=true;
+ fields.forEach(field=>{
+   const ok=normalize(field.value)===normalize(field.dataset.answer);
+   field.classList.toggle('correct',ok);field.classList.toggle('wrong',!ok);
+   if(!ok) all=false;
+ });
+ const hint=task.querySelector('.hint');
+ if(all){
+   solved.add(current);
+   task.classList.add('solved');
+   hint.textContent='Чудово! Правильно! Хмаринка зникає ☁️';
+   document.getElementById('nextTask').disabled=current===tasks.length-1;
+   document.getElementById('progress').textContent=`Завдання ${current+1} із ${tasks.length} · Виконано: ${solved.size}`;
+   if(solved.size===tasks.length){
+     document.getElementById('sun').classList.add('glow');
+     document.getElementById('message').textContent='Ура! Усі хмаринки зникли — сонечко сяє! ☀️';
+   } else {
+     document.getElementById('message').textContent='Правильно! Можеш переходити до наступної хмаринки.';
+   }
+ } else {
+   hint.textContent='Є помилка або пропущена відповідь. Перевір і спробуй ще!';
+   document.getElementById('message').textContent='Хмаринка поки залишається. У тебе все вийде!';
+ }
+}
+document.getElementById('checkAll').textContent='Перевірити завдання';
+document.getElementById('checkAll').addEventListener('click',checkCurrent);
+document.getElementById('prevTask').addEventListener('click',()=>showTask(current-1));
+document.getElementById('nextTask').addEventListener('click',()=>{if(solved.has(current)&&current<tasks.length-1)showTask(current+1);});
+document.getElementById('reset').addEventListener('click',()=>{
+ solved.clear();
+ tasks.forEach(task=>{task.classList.remove('solved');task.querySelector('.hint').textContent='';task.querySelectorAll('input,select').forEach(i=>{i.value='';i.classList.remove('correct','wrong');});});
+ document.getElementById('sun').classList.remove('glow');
+ document.getElementById('message').textContent='';
+ showTask(0);
+});
+showTask(0);
+</script>
+</body></html>
