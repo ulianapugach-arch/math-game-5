@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Інтерактивний робочий аркуш — Варіанти 3 і 4</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#258ac4;--ink:#263746;--paper:#fff}
+body{margin:0;padding:18px;background:#eaf1f6;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.sheet{max-width:1000px;margin:auto;background-color:var(--paper);background-image:linear-gradient(#dceefa 1px,transparent 1px),linear-gradient(90deg,#dceefa 1px,transparent 1px);background-size:24px 24px;border:1px solid #bdd8e9;box-shadow:0 8px 28px #26374620;padding:28px}
+.top{text-align:center;background:#ffffffdf;border:2px solid var(--blue);border-radius:14px;padding:15px;margin-bottom:20px}
+h1{font-size:clamp(22px,4vw,32px);margin:0 0 6px;color:#155c89}
+.subtitle{margin:0;font-size:15px}
+.columns{display:block}
+.variant{background:transparent;border:0;border-radius:0;padding:0;display:contents}
+h2{display:none}
+.task{background:#ffffffeb;border:1.5px solid #a8cfe5;border-radius:12px;padding:16px;margin:0 0 14px;break-inside:avoid}
+.task:first-of-type{padding-top:16px}
+.task h3{font-size:18px;margin:0 0 9px;color:#174e70}
+.prompt{font-size:16px;line-height:1.55;margin:6px 0 10px}
+.choice{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:16px}
+.choice input{margin-top:3px;accent-color:#1976d2}
+.field{display:inline-block;border:1.5px solid #58a9dc;border-radius:5px;background:#fff;padding:7px 8px;min-width:105px;font:inherit;color:var(--ink)}
+.field.small{min-width:75px;width:100px}
+.field.wide{width:min(100%,260px)}
+.answerline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:9px 0}
+.workbox{background:#fff;border:1.5px dashed #75afd2;border-radius:8px;padding:10px;margin:9px 0}
+.workbox label{display:block;font-weight:bold;font-size:14px;margin-bottom:6px}
+.workarea{width:100%;min-height:105px;resize:vertical;border:1.5px solid #58a9dc;border-radius:6px;background-color:#fff;background-image:linear-gradient(#e2f0f8 1px,transparent 1px),linear-gradient(90deg,#e2f0f8 1px,transparent 1px);background-size:22px 22px;padding:8px;font:16px Arial}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.step{background:#f8fcff;border:1px solid #a8cfe5;border-radius:8px;padding:9px}
+.step label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px}
+.final{background:#fff7df;border:2px solid #e8b84f;border-radius:9px;padding:10px;margin-top:10px}
+.final label{font-weight:bold;display:block;margin-bottom:6px}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0 4px}
+button{border:0;border-radius:10px;padding:12px 18px;font-weight:bold;font-size:15px;cursor:pointer;background:#1976b9;color:white}
+button.secondary{background:#e5edf3;color:#243746}
+.feedback{display:none;background:#fff;border:1px solid #c4dce9;border-radius:10px;padding:14px;margin-top:14px;line-height:1.55}
+.feedback.show{display:block}
+.note{text-align:center;font-size:13px;color:#5b6c78;margin-top:10px}
+@media(max-width:760px){.sheet{padding:14px}.task{padding:13px}}
+@media print{body{background:white;padding:0}.sheet{box-shadow:none;border:0;max-width:none;padding:12mm}.actions,.note{display:none}.task{break-inside:avoid}.workarea{min-height:100px}}
+</style>
+</head>
+<body>
+<main class="sheet">
+<header class="top">
+<h1>Інтерактивний робочий аркуш</h1>
+<p class="subtitle"><b>Числові й буквені вирази. Формули. Рівняння</b></p>
+<p class="subtitle">Виконай завдання. Записуй міркування та відповіді у відповідні комірки.</p>
+</header>
+<div class="columns">
+<section class="variant">
+<div class="task">
+<h3>1. Обери правильну відповідь</h3>
+<p class="prompt">У сквері росте 15 кленів, а лип — на <i>m</i> менше. Скільки лип росте у сквері?</p>
+<label class="choice"><input type="radio" name="v3q1" value="A"> А. 15 − m</label>
+<label class="choice"><input type="radio" name="v3q1" value="B"> Б. 15 + m</label>
+<label class="choice"><input type="radio" name="v3q1" value="C"> В. 15 : m</label>
+<label class="choice"><input type="radio" name="v3q1" value="D"> Г. 15m</label>
+</div>
+<div class="task">
+<h3>2. Розв’яжи рівняння</h3>
+<p class="prompt">3x + 5x − 2 = 22</p>
+<div class="workbox"><label for="v3work">Місце для розв’язання</label><textarea class="workarea" id="v3work" placeholder="Запиши послідовність дій..."></textarea></div>
+<div class="answerline"><b>Відповідь: x =</b><input class="field small" id="v3ans" aria-label="Відповідь до рівняння варіанта 3"></div>
+</div>
+<div class="task">
+<h3>3. Склади буквений вираз і знайди його значення</h3>
+<p class="prompt">Першого дня бригада шляховиків відремонтувала 10 км дороги, другого — на <i>a</i> км менше, ніж першого, а третього — удвічі більше, ніж другого. Скільки кілометрів дороги було відремонтовано за три дні разом? Знайди значення виразу, якщо <i>a</i> = 3.</p>
+<div class="steps">
+<div class="step"><label>1-й день (км)</label><input class="field wide" id="v3d1" placeholder="Вираз або число"></div>
+<div class="step"><label>2-й день (км)</label><input class="field wide" id="v3d2" placeholder="Вираз"></div>
+<div class="step"><label>3-й день (км)</label><input class="field wide" id="v3d3" placeholder="Вираз"></div>
+<div class="step"><label>Разом за 3 дні</label><input class="field wide" id="v3sum" placeholder="Буквений вираз"></div>
+</div>
+<div class="final"><label>Обчисли, якщо a = 3. Кінцева відповідь:</label><input class="field wide" id="v3final" placeholder="Відповідь у км"> км</div>
+</div>
+</section>
+<section class="variant">
+<div class="task">
+<h3>4. Обери правильну відповідь</h3>
+<p class="prompt">Для участі в конкурсі Марійка підготувала 10 малюнків, а Юрко — у <i>m</i> разів більше. Скільки малюнків підготував Юрко?</p>
+<label class="choice"><input type="radio" name="v4q1" value="A"> А. 10 : m</label>
+<label class="choice"><input type="radio" name="v4q1" value="B"> Б. 10 + m</label>
+<label class="choice"><input type="radio" name="v4q1" value="C"> В. 10 − m</label>
+<label class="choice"><input type="radio" name="v4q1" value="D"> Г. 10m</label>
+</div>
+<div class="task">
+<h3>5. Розв’яжи рівняння</h3>
+<p class="prompt">7x − 2x + 11 = 31</p>
+<div class="workbox"><label for="v4work">Місце для розв’язання</label><textarea class="workarea" id="v4work" placeholder="Запиши послідовність дій..."></textarea></div>
+<div class="answerline"><b>Відповідь: x =</b><input class="field small" id="v4ans" aria-label="Відповідь до рівняння варіанта 4"></div>
+</div>
+<div class="task">
+<h3>6. Склади буквений вираз і знайди його значення</h3>
+<p class="prompt">Першого дня майстер поклав 8 м² керамічної плитки, другого — на <i>b</i> м² більше, ніж першого, а третього — утричі більше, ніж другого. Скільки квадратних метрів плитки майстер поклав за три дні разом? Знайди значення виразу, якщо <i>b</i> = 2.</p>
+<div class="steps">
+<div class="step"><label>1-й день (м²)</label><input class="field wide" id="v4d1" placeholder="Вираз або число"></div>
+<div class="step"><label>2-й день (м²)</label><input class="field wide" id="v4d2" placeholder="Вираз"></div>
+<div class="step"><label>3-й день (м²)</label><input class="field wide" id="v4d3" placeholder="Вираз"></div>
+<div class="step"><label>Разом за 3 дні</label><input class="field wide" id="v4sum" placeholder="Буквений вираз"></div>
+</div>
+<div class="final"><label>Обчисли, якщо b = 2. Кінцева відповідь:</label><input class="field wide" id="v4final" placeholder="Відповідь у м²"> м²</div>
+</div>
+</section>
+</div>
+<div class="actions">
+<button onclick="checkAnswers()">Перевірити відповіді</button>
+<button class="secondary" onclick="window.print()">Друкувати / зберегти PDF</button>
+<button class="secondary" onclick="resetSheet()">Очистити аркуш</button>
+</div>
+<div class="feedback" id="feedback" aria-live="polite"></div>
+<p class="note">Порада: аркуш можна заповнювати на комп’ютері або роздрукувати й виконати письмово.</p>
+</main>
+<script>
+function val(id){return document.getElementById(id).value.trim().toLowerCase().replace(/\s+/g,'').replace(/,/g,'.').replace(/²/g,'^2')}
+function radio(name){const x=document.querySelector(`input[name="${name}"]:checked`);return x?x.value:""}
+function checkAnswers(){
+ const checks=[
+  ["Варіант 3 · №1",radio("v3q1")==="A", "А. 15 − m"],
+  ["Варіант 3 · №2",["3","3.0"].includes(val("v3ans")), "x = 3"],
+  ["Варіант 3 · №3",["31","31км"].includes(val("v3final")), "31 км (вираз: 40 − 3a)"],
+  ["Варіант 4 · №1",radio("v4q1")==="D", "Г. 10m"],
+  ["Варіант 4 · №2",["4","4.0"].includes(val("v4ans")), "x = 4"],
+  ["Варіант 4 · №3",["48","48м2","48м^2"].includes(val("v4final")), "48 м² (вираз: 40 + 4b)"]
+ ];
+ const score=checks.filter(x=>x[1]).length;
+ document.getElementById("feedback").innerHTML=`<h3>Результат перевірки: ${score} із 6</h3>`+checks.map(x=>`<p>${x[1]?"✅":"❌"} <b>${x[0]}:</b> ${x[1]?"Правильно":`Правильна відповідь — ${x[2]}`}</p>`).join("")+
+ `<p><b>Проміжні вирази для №4:</b><br>Варіант 3: 1-й день — 10; 2-й — 10 − a; 3-й — 2(10 − a); разом — 40 − 3a.<br>Варіант 4: 1-й день — 8; 2-й — 8 + b; 3-й — 3(8 + b); разом — 40 + 4b.</p>`;
+ document.getElementById("feedback").classList.add("show");
+}
+function resetSheet(){
+ document.querySelectorAll("input").forEach(x=>{if(x.type==="radio")x.checked=false;else x.value=""});
+ document.querySelectorAll("textarea").forEach(x=>x.value="");
+ const f=document.getElementById("feedback");f.classList.remove("show");f.innerHTML="";
+}
+</script>
+</body>
+</html>
