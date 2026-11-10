@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Математична розминка — Швидкість, час, відстань</title>
+<style>
+:root{--blue:#168bd2;--navy:#173b67;--pale:#eaf6ff;--green:#198754;--red:#c0392b;--ink:#202a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eaf6ff,#f7fbff);color:var(--ink);padding:22px}
+.wrap{max-width:900px;margin:auto}
+header{background:var(--navy);color:white;text-align:center;padding:24px 18px;border-radius:20px;box-shadow:0 8px 22px #173b6725}
+h1{margin:0 0 8px;font-size:clamp(24px,4vw,36px)}
+header p{margin:0;color:#dceeff;font-size:17px}
+.panel{background:white;border:1px solid #d5e8f5;border-radius:18px;padding:20px;margin-top:18px;box-shadow:0 5px 18px #173b6710}
+.progressline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:bold;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.num{border:2px solid #b8dff6;background:#f5fbff;border-radius:12px;padding:14px 8px;font-size:22px;font-weight:bold;cursor:pointer;color:var(--navy);min-height:58px}
+.num.done{background:#e4f6eb;border-color:#65bd86;color:#146c3a}
+.num.active{background:#1976d2;border-color:#1976d2;color:white}
+.num:focus-visible,.option:focus-visible,button:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+.task{background:#f5faff;border:1px solid #d4e9f8;border-radius:16px;padding:22px;margin-top:20px}
+.tasktop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{background:#dcefff;color:#14558b;border-radius:30px;padding:7px 12px;font-size:14px;font-weight:bold}
+h2{font-size:25px;margin:14px 0}
+.given{background:white;border-radius:12px;padding:18px;font-size:23px;line-height:1.65;border:1px solid #e0edf5}
+.ask{color:#1269b0;font-weight:bold;font-size:27px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.option{display:flex;align-items:center;gap:12px;text-align:left;border:2px solid #d8e5ee;background:white;border-radius:12px;padding:14px;font-size:18px;cursor:pointer;min-height:58px}
+.option.selected{border-color:#1976d2;background:#eaf4ff}
+.letter{display:inline-grid;place-items:center;width:30px;height:30px;flex:0 0 30px;border-radius:50%;background:#eaf0f5;font-weight:bold}
+.option.selected .letter{background:#1976d2;color:white}
+.nav{display:flex;gap:10px;margin-top:16px}
+button.action{border:0;border-radius:12px;padding:13px 18px;font-size:16px;font-weight:bold;cursor:pointer;background:#1976d2;color:white}
+button.secondary{background:#edf2f6;color:#263746}
+button:disabled{opacity:.45;cursor:not-allowed}
+.check{width:100%;margin-top:18px;background:#198754!important;font-size:18px!important}
+.hint{text-align:center;color:#637381;font-size:14px;margin:9px 0 0}
+.result{margin-top:18px;background:#f1f8f3;border:1px solid #c8e5d0;border-radius:16px;padding:20px}
+.score{text-align:center;font-size:38px;font-weight:bold;color:#176c3b}
+.review{display:flex;justify-content:space-between;border-bottom:1px solid #dce8df;padding:8px 0;gap:10px}
+.feedback{padding:12px;background:white;border-radius:10px;margin-top:12px;font-weight:bold}
+footer{text-align:center;color:#607080;font-size:13px;margin:18px}
+@media(max-width:560px){body{padding:10px}.panel{padding:14px}.grid{gap:7px}.num{padding:10px 4px;min-height:50px}.options{grid-template-columns:1fr}.given{font-size:20px}.nav button{flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Математична розминка</h1>
+<p>Швидкість · Час · Відстань | 5 клас</p>
+</header>
+<section class="panel">
+<div class="progressline"><span>Обери номер завдання</span><span id="progress">Виконано: 0 із 10</span></div>
+<div class="grid" id="numbers"></div>
+<div class="task">
+<div class="tasktop"><span class="pill" id="taskNo">Завдання 1 із 10</span><span class="pill" id="taskType">Знайди відстань</span></div>
+<h2 id="heading">Знайди відстань</h2>
+<div class="given" id="given">v = 2 км/год<br>t = 6 год<br><span class="ask">s = ?</span></div>
+<div style="font-weight:bold;margin-top:17px">Обери правильну відповідь:</div>
+<div class="options" id="options"></div>
+<div id="feedback" class="feedback" hidden></div>
+<div class="nav">
+<button class="action secondary" id="prev">← Назад</button>
+<button class="action" id="next">Далі →</button>
+</div>
+</div>
+<button class="action check" id="check" disabled>Перевірити відповіді</button>
+<p class="hint" id="hint">Виконай усі 10 завдань, щоб перевірити результат.</p>
+<div id="result" class="result" hidden></div>
+</section>
+<footer>Інтерактивна вправа. Працює автономно у браузері — інтернет не потрібен.</footer>
+</div>
+<script>
+const tasks=[
+{type:"Знайди відстань",a:"v = 2 км/год",b:"t = 6 год",ask:"s = ?",opts:["8 км","12 км","18 км","3 км"],ans:1},
+{type:"Знайди швидкість",a:"s = 12 км",b:"t = 3 год",ask:"v = ?",opts:["4 км/год","36 км/год","9 км/год","15 км/год"],ans:0},
+{type:"Знайди відстань",a:"v = 10 км/год",b:"t = 8 год",ask:"s = ?",opts:["18 км","80 км","800 км","8 км"],ans:1},
+{type:"Знайди час",a:"s = 60 см",b:"v = 15 см/с",ask:"t = ?",opts:["4 с","45 с","75 с","900 с"],ans:0},
+{type:"Знайди відстань",a:"v = 12 км/год",b:"t = 5 год",ask:"s = ?",opts:["17 км","60 км","72 км","600 км"],ans:1},
+{type:"Знайди швидкість",a:"s = 10 м",b:"t = 2 хв",ask:"v = ?",opts:["5 м/хв","20 м/хв","8 м/хв","12 м/хв"],ans:0},
+{type:"Знайди відстань",a:"v = 75 км/год",b:"t = 4 год",ask:"s = ?",opts:["79 км","300 км","304 км","75 км"],ans:1},
+{type:"Знайди час",a:"s = 250 м",b:"v = 50 м/с",ask:"t = ?",opts:["5 с","12,5 с","200 с","300 с"],ans:0},
+{type:"Знайди відстань",a:"v = 24 м/хв",b:"t = 6 хв",ask:"s = ?",opts:["30 м","120 м","144 м","4 м"],ans:2},
+{type:"Знайди час",a:"s = 100 м",b:"v = 25 м/хв",ask:"t = ?",opts:["4 хв","25 хв","75 хв","2500 хв"],ans:0}
+];
+let current=0,answers={},checked=false;
+const $=id=>document.getElementById(id);
+function render(){
+ const t=tasks[current];
+ $("taskNo").textContent=`Завдання ${current+1} із 10`;
+ $("taskType").textContent=t.type;$("heading").textContent=t.type;
+ $("given").innerHTML=`${t.a}<br>${t.b}<br><span class="ask">${t.ask}</span>`;
+ $("options").innerHTML="";
+ t.opts.forEach((o,i)=>{
+  const btn=document.createElement("button");btn.className="option"+(answers[current]===i?" selected":"");
+  btn.disabled=checked;btn.innerHTML=`<span class="letter">${"ABCD"[i]}</span><span>${o}</span>`;
+  btn.onclick=()=>{answers[current]=i;render();};$("options").appendChild(btn);
+ });
+ $("feedback").hidden=!checked;
+ if(checked){$("feedback").textContent=answers[current]===t.ans?"✓ Правильно! Молодець!":`Правильна відповідь: ${t.opts[t.ans]}`;}
+ $("prev").disabled=current===0;$("next").disabled=current===9;
+ $("progress").textContent=`Виконано: ${Object.keys(answers).length} із 10`;
+ $("check").disabled=Object.keys(answers).length!==10||checked;
+ $("hint").textContent=checked?"Перевірка завершена. Переглянь результати нижче.":"Виконай усі 10 завдань, щоб перевірити результат.";
+ $("numbers").innerHTML="";
+ tasks.forEach((_,i)=>{const b=document.createElement("button");b.className="num"+(i===current?" active":"")+(answers[i]!==undefined?" done":"");b.textContent=i+1;b.setAttribute("aria-label",`Завдання ${i+1}`);b.onclick=()=>{current=i;render();};$("numbers").appendChild(b);});
+}
+$("prev").onclick=()=>{current--;render();};$("next").onclick=()=>{current++;render();};
+$("check").onclick=()=>{
+ checked=true;render();
+ const score=tasks.filter((t,i)=>answers[i]===t.ans).length;
+ let title=score===10?"Чудово! Усі відповіді правильні!":score>=8?"Відмінна робота!":score>=5?"Гарний результат! Є над чим попрацювати.":"Не засмучуйся! Повтори формули та спробуй ще раз.";
+ $("result").hidden=false;
+ $("result").innerHTML=`<h2 style="text-align:center;margin-top:0">Твій результат</h2><div class="score">${score} / 10</div><p style="text-align:center;font-weight:bold">${title}</p><h3>Результати за завданнями</h3>`+
+ tasks.map((t,i)=>`<div class="review"><span>Завдання ${i+1}</span><strong style="color:${answers[i]===t.ans?"#198754":"#c0392b"}">${answers[i]===t.ans?"Правильно":"Помилка — "+t.opts[t.ans]}</strong></div>`).join("")+
+ `<button class="action" style="width:100%;margin-top:16px" onclick="restart()">↻ Розпочати знову</button>`;
+ $("result").scrollIntoView({behavior:"smooth",block:"start"});
+};
+function restart(){current=0;answers={};checked=false;$("result").hidden=true;render();window.scrollTo({top:0,behavior:"smooth"});}
+render();
+</script>
+</body>
+</html>
