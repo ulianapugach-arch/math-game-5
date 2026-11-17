@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Інтерактивний робочий зошит — Математика, 5 клас</title>
+<style>
+:root{--ink:#233b59;--blue:#4b8fc8;--line:#c9dff2;--red:#e58b8b;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#eaf2f8;color:var(--ink);font-family:"Trebuchet MS",Arial,sans-serif}
+header{max-width:1100px;margin:22px auto 14px;padding:0 16px;text-align:center}
+h1{font-size:clamp(23px,4vw,36px);margin:0 0 7px;color:#244d75}
+header p{margin:0;color:#58738d}
+.topbar{max-width:1068px;margin:0 auto 16px;padding:12px 18px;background:#244d75;color:#fff;border-radius:15px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.topbar strong{font-size:20px;color:#ffe08a}
+main{max-width:1068px;margin:0 auto 30px;padding:0 14px}
+.sheet{background-color:var(--paper);background-image:linear-gradient(to right,transparent 0,transparent 39px,rgba(229,139,139,.42) 40px,transparent 41px),linear-gradient(to bottom,rgba(112,167,211,.25) 1px,transparent 1px),linear-gradient(to right,rgba(112,167,211,.25) 1px,transparent 1px);background-size:100% 100%,24px 24px,24px 24px;background-position:0 0,0 0,0 0;border:1px solid #d1e0ec;border-radius:18px;padding:25px 25px 28px 58px;box-shadow:0 8px 25px #264b6a18;margin-bottom:18px;position:relative}
+.sheet:before{content:"";position:absolute;left:40px;top:0;bottom:0;width:1px;background:rgba(229,139,139,.55)}
+.task{padding:4px 0 18px;margin-bottom:15px;border-bottom:1px dashed #b8cfe2}
+.task:last-child{border-bottom:0;margin-bottom:0}
+.taskhead{display:flex;gap:10px;align-items:flex-start}
+.num{flex:0 0 32px;height:32px;border-radius:50%;background:#e5f2fc;color:#245987;display:grid;place-items:center;font-weight:900;border:1px solid #b8d5ed}
+.question{font-size:17px;line-height:1.55;font-weight:600;flex:1}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 0 42px}
+.opt{background:#f7fbff;border:1.5px solid #c6dced;border-radius:11px;padding:10px 12px;text-align:left;color:#294966;font-size:16px;cursor:pointer}
+.opt:hover{border-color:#4b8fc8;background:#edf7ff}
+.opt.chosen{background:#e3f1ff;border-color:#438ac5;box-shadow:0 0 0 2px #438ac522}
+.opt.correct{border-color:#159b69;background:#e8f8f0}
+.opt.wrong{border-color:#d9534f;background:#fff0ef}
+.inline-answer{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:12px 0 0 42px}
+input[type=text]{width:170px;max-width:100%;padding:10px 12px;border:1.5px solid #b8d1e6;border-radius:10px;font-size:16px;color:#183b5b;background:#fff}
+.worklabel{margin:14px 0 6px 42px;font-weight:800;color:#456984}
+textarea{display:block;margin:0 0 0 42px;width:calc(100% - 42px);min-height:112px;resize:vertical;border:1.5px solid #b8d1e6;border-radius:10px;padding:12px 14px;font:16px/24px "Trebuchet MS",Arial,sans-serif;color:#24425f;background-color:#fff;background-image:linear-gradient(to bottom,transparent 23px,rgba(112,167,211,.32) 24px);background-size:100% 24px}
+.feedback{margin:8px 0 0 42px;font-weight:800;min-height:22px;font-size:14px}
+.good{color:#138253}.bad{color:#c33}
+button{font-family:inherit}
+.checkbtn,.finishbtn,.resetbtn{border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:800;cursor:pointer;background:#2879b9;color:#fff}
+.checkbtn:hover,.finishbtn:hover{background:#1d639b}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0 42px}
+.finishbtn{background:#159b69}.resetbtn{background:#e9f1f8;color:#315674;border:1px solid #bfd3e5}
+.result{display:none;background:#fff;border:2px solid #b9d8ee;border-radius:15px;padding:18px;margin-top:18px;text-align:center}
+.result strong{font-size:26px;color:#1b6ca5}
+.note{font-size:13px;color:#668097;margin-top:7px}
+@media(max-width:650px){.sheet{padding:18px 14px 22px 48px}.sheet:before{left:32px}.options{grid-template-columns:1fr;margin-left:0}.inline-answer,.worklabel,.feedback,.controls{margin-left:0}textarea{margin-left:0;width:100%}.question{font-size:16px}.topbar{margin-left:12px;margin-right:12px}}
+@media print{body{background:#fff}.topbar,.controls,.checkbtn,.finishbtn,.resetbtn{display:none!important}.sheet{box-shadow:none;break-inside:avoid}textarea{min-height:125px}}
+</style>
+</head>
+<body>
+<header>
+<h1>📘 Мій інтерактивний робочий зошит</h1>
+<p>Математика · 5 клас · Повторюємо та тренуємося</p>
+</header>
+<div class="topbar">
+<div>Виконано завдань: <strong id="done">0 / 8</strong></div>
+<div>Правильних відповідей: <strong id="score">0</strong></div>
+</div>
+<main>
+<section class="sheet">
+<div class="task" data-task="1">
+<div class="taskhead"><span class="num">1</span><div class="question">Бабуся подарувала Марійці на день народження 100 грн. Скільки грошей від цієї суми залишилося у Марійки після того, як вона витратила <i>b</i> грн?</div></div>
+<div class="options">
+<button class="opt" data-correct="false">А. 100b</button><button class="opt" data-correct="true">Б. 100 − b</button>
+<button class="opt" data-correct="false">В. 100 + b</button><button class="opt" data-correct="false">Г. 100 : b</button>
+</div><div class="feedback"></div>
+</div>
+<div class="task" data-task="2">
+<div class="taskhead"><span class="num">2</span><div class="question">Укажи рівняння, коренем якого є число 5.</div></div>
+<div class="options">
+<button class="opt" data-correct="true">А. 30 : x = 6</button><button class="opt" data-correct="false">Б. 12 + x = 20</button>
+<button class="opt" data-correct="false">В. 7 · x = 49</button><button class="opt" data-correct="false">Г. 13 − x = 7</button>
+</div><div class="feedback"></div>
+</div>
+<div class="task" data-task="3">
+<div class="taskhead"><span class="num">3</span><div class="question">Лазерний принтер надрукував 48 сторінок за 6 хв. Знайди продуктивність праці принтера.</div></div>
+<div class="options">
+<button class="opt" data-correct="false">А. 6 сторінок за хв</button><button class="opt" data-correct="false">Б. 7 сторінок за хв</button>
+<button class="opt" data-correct="true">В. 8 сторінок за хв</button><button class="opt" data-correct="false">Г. 9 сторінок за хв</button>
+</div><div class="feedback"></div>
+</div>
+<div class="task" data-task="4">
+<div class="taskhead"><span class="num">4</span><div class="question">Обчисли значення <i>y</i> за формулою <i>y</i> = 5<i>x</i> − 2, якщо <i>x</i> = 3.</div></div>
+<div class="options">
+<button class="opt" data-correct="false">А. 17</button><button class="opt" data-correct="false">Б. 3</button>
+<button class="opt" data-correct="false">В. 6</button><button class="opt" data-correct="true">Г. 13</button>
+</div><div class="feedback"></div>
+</div>
+</section>
+
+<section class="sheet">
+<div class="task" data-task="5">
+<div class="taskhead"><span class="num">5</span><div class="question">При якому значенні <i>a</i> рівність 7<i>a</i> + 2<i>a</i> = 360 буде правильною?</div></div>
+<div class="worklabel">Місце для розв’язання:</div>
+<textarea placeholder="Запиши кроки розв’язання тут..."></textarea>
+<div class="inline-answer"><label for="a5">Відповідь: a =</label><input id="a5" type="text" inputmode="decimal" placeholder="Введи число"><button class="checkbtn" onclick="checkNumber(5,'a5',['40','40,0','40.0'])">Перевірити</button></div>
+<div class="feedback" id="fb5"></div>
+</div>
+<div class="task" data-task="6">
+<div class="taskhead"><span class="num">6</span><div class="question">Автомобіль, що рухається зі швидкістю 80 км/год, долає певну відстань за 7 год. За скільки годин він подолає таку саму відстань, якщо зменшить швидкість на 10 км/год?</div></div>
+<div class="worklabel">Місце для розв’язання:</div>
+<textarea placeholder="1. Знайди відстань.&#10;2. Знайди нову швидкість.&#10;3. Обчисли час..."></textarea>
+<div class="inline-answer"><label for="a6">Відповідь:</label><input id="a6" type="text" inputmode="decimal" placeholder="Кількість годин"><span>год</span><button class="checkbtn" onclick="checkNumber(6,'a6',['8','8,0','8.0'])">Перевірити</button></div>
+<div class="feedback" id="fb6"></div>
+</div>
+<div class="task" data-task="7">
+<div class="taskhead"><span class="num">7</span><div class="question">Знайди корінь рівняння (329 + <i>x</i>) − 519 = 832.</div></div>
+<div class="worklabel">Місце для розв’язання:</div>
+<textarea placeholder="Запиши перетворення рівняння та обчислення..."></textarea>
+<div class="inline-answer"><label for="a7">Відповідь: x =</label><input id="a7" type="text" inputmode="numeric" placeholder="Введи число"><button class="checkbtn" onclick="checkNumber(7,'a7',['1022','1 022'])">Перевірити</button></div>
+<div class="feedback" id="fb7"></div>
+</div>
+<div class="task" data-task="8">
+<div class="taskhead"><span class="num">8</span><div class="question">Учень придбав 7 зошитів по <i>n</i> грн за кожний, після чого в нього залишилося 37 грн. Склади формулу для обчислення кількості грошей <i>x</i>, які були в учня до придбання зошитів, та знайди значення <i>x</i>, якщо <i>n</i> = 3.</div></div>
+<div class="worklabel">Місце для розв’язання:</div>
+<textarea placeholder="Склади формулу. Підстав n = 3 та обчисли..."></textarea>
+<div class="inline-answer"><label for="a8">Формула:</label><input id="a8formula" type="text" placeholder="Наприклад, x = ..."><label for="a8">Значення x:</label><input id="a8" type="text" inputmode="numeric" placeholder="Введи число"><button class="checkbtn" onclick="checkTask8()">Перевірити</button></div>
+<div class="feedback" id="fb8"></div>
+</div>
+</section>
+<div class="controls">
+<button class="finishbtn" onclick="showResult()">Підсумувати результат</button>
+<button class="resetbtn" onclick="resetAll()">Очистити відповіді</button>
+<button class="resetbtn" onclick="window.print()">Друкувати зошит</button>
+</div>
+<div class="result" id="result"><h2>Твій результат</h2><strong id="resultText"></strong><p id="resultMsg"></p></div>
+<p class="note">Порада: спочатку розв’яжи завдання самостійно, а потім перевір відповідь. Записи у робочих полях можна редагувати.</p>
+</main>
+<script>
+const completed=new Set(),correctTasks=new Set();
+function updateBar(){document.getElementById('done').textContent=completed.size+' / 8';document.getElementById('score').textContent=correctTasks.size;}
+document.querySelectorAll('.task[data-task="1"],.task[data-task="2"],.task[data-task="3"],.task[data-task="4"]').forEach(task=>{
+ task.querySelectorAll('.opt').forEach(btn=>btn.addEventListener('click',()=>{
+  if(completed.has(task.dataset.task))return;
+  task.querySelectorAll('.opt').forEach(b=>b.classList.remove('chosen'));
+  btn.classList.add('chosen');
+  const fb=task.querySelector('.feedback');
+  if(btn.dataset.correct==='true'){btn.classList.add('correct');fb.textContent='Правильно! Чудова робота!';fb.className='feedback good';completed.add(task.dataset.task);correctTasks.add(task.dataset.task);task.querySelectorAll('.opt').forEach(b=>b.disabled=true);}
+  else{btn.classList.add('wrong');fb.textContent='Спробуй ще раз. Перевір уважно умову.';fb.className='feedback bad';}
+  updateBar();
+ }));
+});
+function normalized(v){return (v||'').trim().replace(/\s+/g,'').replace(',','.').replace(/[₴грнгод\.]/gi,'').toLowerCase();}
+function checkNumber(taskId,inputId,answers){
+ const val=normalized(document.getElementById(inputId).value);
+ const ok=answers.map(normalized).includes(val);
+ const fb=document.getElementById('fb'+taskId);
+ if(ok){fb.textContent='Правильно! Відповідь зараховано.';fb.className='feedback good';completed.add(String(taskId));correctTasks.add(String(taskId));}
+ else{fb.textContent='Поки що не збігається. Перевір обчислення та спробуй ще.';fb.className='feedback bad';}
+ updateBar();
+}
+function checkTask8(){
+ const formula=normalized(document.getElementById('a8formula').value).replace(/[×·]/g,'*');
+ const val=normalized(document.getElementById('a8').value);
+ const formulaOK=/^x=7n\+37$/.test(formula)||/^x=37\+7n$/.test(formula)||/^7n\+37$/.test(formula)||/^37\+7n$/.test(formula);
+ const valueOK=val==='58';
+ const fb=document.getElementById('fb8');
+ if(formulaOK&&valueOK){fb.textContent='Чудово! Формула x = 7n + 37, а за n = 3 маємо x = 58 грн.';fb.className='feedback good';completed.add('8');correctTasks.add('8');}
+ else{fb.textContent='Перевір обидві частини: формулу та значення x при n = 3.';fb.className='feedback bad';}
+ updateBar();
+}
+function showResult(){
+ const result=document.getElementById('result');result.style.display='block';
+ document.getElementById('resultText').textContent=correctTasks.size+' / 8 правильних';
+ document.getElementById('resultMsg').textContent=correctTasks.size===8?'Відмінно! Усі завдання виконано правильно!':correctTasks.size>=5?'Гарний результат! Переглянь завдання, які ще потребують уваги.':'Продовжуй тренуватися — у тебе все вийде!';
+ result.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetAll(){
+ if(!confirm('Очистити всі відповіді та записи?'))return;
+ completed.clear();correctTasks.clear();
+ document.querySelectorAll('.opt').forEach(b=>{b.disabled=false;b.classList.remove('chosen','correct','wrong')});
+ document.querySelectorAll('input,textarea').forEach(el=>el.value='');
+ document.querySelectorAll('.feedback').forEach(el=>{el.textContent='';el.className='feedback'});
+ document.getElementById('result').style.display='none';updateBar();
+}
+</script>
+</body>
+</html>
