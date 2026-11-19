@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Перемісти блоки — інтерактивна головоломка</title>
+
+<style>
+:root{--ink:#23445c;--blue:#237bb0;--line:#243746}
+*{box-sizing:border-box}
+html{min-height:100%;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:linear-gradient(180deg,#e8f7ff,#fff 70%);font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink)}
+main{width:min(1100px,100%);margin:auto;padding:10px 14px 18px}
+h1{text-align:center;color:#185f8d;font-size:clamp(22px,3vw,30px);margin:2px 0 5px}
+.intro{text-align:center;line-height:1.4;font-size:14px;margin:0 auto 12px;max-width:850px}
+.layout{display:grid;grid-template-columns:minmax(250px,340px) minmax(0,1fr);gap:14px;align-items:stretch}
+.board-wrap,.tray{background:#fff;border:2px solid #d5eaf5;border-radius:16px;padding:12px;box-shadow:0 8px 24px #316d8e12;min-width:0}
+.board-wrap{display:flex;flex-direction:column;justify-content:center}
+.board{width:min(100%,310px);aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);border:2px solid #172b38;margin:auto;background:#fff;position:relative;touch-action:none;user-select:none}
+.cell{border:1px solid #263744;min-width:0;min-height:0;background:#fff}
+.placed{position:absolute;display:grid;touch-action:none!important;cursor:grab;z-index:2;user-select:none;-webkit-user-select:none;pointer-events:none}
+.placed:active{cursor:grabbing}
+.piece-cell{border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff33;pointer-events:auto}
+.tray{display:flex;flex-direction:column;justify-content:center}
+.tray h2{font-size:19px;margin:0 0 4px}
+.small{font-size:13px;color:#648398;line-height:1.45;margin:0 0 12px}
+.tray-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.piece-card{border:1px solid #e0edf4;border-radius:12px;padding:8px;background:#fbfdff;min-width:0}
+.piece-card.selected{border:2px solid #2386bf;background:#eef9ff;padding:7px}
+.piece-head{display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:13px;font-weight:800;margin-bottom:6px}
+.piece-preview{display:inline-grid;gap:2px;touch-action:none!important;cursor:grab;vertical-align:middle;max-width:100%;user-select:none;-webkit-user-select:none}
+.mini-cell{width:22px;height:22px;touch-action:none;border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff35}
+.rotate{border:1px solid #c7e0ed;background:#eef8fd;color:#176b9e;border-radius:9px;min-width:38px;min-height:36px;padding:5px 9px;font-size:16px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.state{font-size:12px;color:#648398;margin-top:7px;line-height:1.35}
+.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px auto 0}
+button.alt{border:2px solid #c6e4f2;border-radius:11px;padding:9px 12px;min-height:40px;font-size:13px;font-weight:800;cursor:pointer;background:#fff;color:#176b9e;touch-action:manipulation}
+#message{display:none;margin:15px auto 0;max-width:700px;text-align:center;background:#f0fff5;border:2px solid #b9e8cb;border-radius:16px;padding:15px;font-size:17px;line-height:1.5}
+#message.win{border-color:#8ed2a9;background:#f0fff5}
+.drag-ghost{position:fixed;z-index:99;pointer-events:none;opacity:.9;filter:drop-shadow(0 8px 7px #24445c55)}
+.legend{text-align:center;font-size:12px;color:#66869a;line-height:1.4;margin:10px 0 0}
+@media (max-width:760px){
+  main{padding:10px 12px 22px}
+  .layout{grid-template-columns:1fr;gap:12px}
+  .board-wrap{order:1;padding:12px}
+  .tray{order:2;padding:12px}
+  .board{width:min(88vw,390px)}
+  .tray-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .piece-card{padding:9px}
+  .piece-card.selected{padding:8px}
+  .piece-head{font-size:13px}
+  .mini-cell{width:22px;height:22px}
+  .rotate{min-width:42px;min-height:42px;font-size:18px}
+  button.alt{min-height:44px;padding:10px 14px;font-size:14px}
+  .small{font-size:12px}
+}
+@media (max-width:380px){
+  main{padding:8px 8px 18px}
+  h1{font-size:22px}
+  .intro{font-size:12px}
+  .tray-list{gap:6px}
+  .piece-card{padding:7px}
+  .piece-card.selected{padding:6px}
+  .mini-cell{width:19px;height:19px}
+  .piece-head{font-size:12px}
+}
+@media (min-width:761px) and (max-height:650px){
+  main{padding:5px 10px}
+  h1{font-size:22px;margin-bottom:2px}
+  .intro{font-size:11px;margin-bottom:6px}
+  .layout{grid-template-columns:minmax(225px,270px) minmax(0,1fr);gap:9px}
+  .board{width:min(100%,245px)}
+  .board-wrap,.tray{padding:7px}
+  .tray-list{gap:5px}
+  .piece-card{padding:4px}
+  .piece-card.selected{padding:3px}
+  .mini-cell{width:17px;height:17px}
+  .piece-head{font-size:11px;margin-bottom:2px}
+  .rotate{min-width:30px;min-height:28px;padding:2px 5px;font-size:12px}
+  .small,.legend{font-size:10px;margin:4px 0}
+  .actions{margin-top:5px}
+  button.alt{min-height:30px;padding:4px 7px;font-size:11px}
+}
+@media (pointer:coarse){
+  .piece-preview,.placed,.board{touch-action:none}
+  .rotate,button.alt{ -webkit-tap-highlight-color:transparent }
+}
+
+/* Mobile-first play mode: stack the board and piece tray vertically. */
+@media screen and (max-width: 760px) {
+  .board-wrap.mobile-target {position:sticky; top:0; z-index:20; background:#fff; box-shadow:0 8px 18px #316d8e22;}
+
+  html, body {width:100%; min-width:0; overflow-x:hidden;}
+  main {width:100%; max-width:100%; padding:10px 10px 24px;}
+  .layout {display:flex !important; flex-direction:column !important; width:100%; gap:12px;}
+  .board-wrap {order:1; width:100%; padding:10px; min-width:0;}
+  .board {width:min(88vw, 390px) !important; max-width:100%; margin:8px auto; aspect-ratio:1;}
+  .legend {font-size:12px; margin:8px 0 2px;}
+  .actions {margin:8px auto 2px; gap:8px;}
+  .tray {order:2; display:block; width:100%; padding:12px; min-width:0;}
+  .tray h2 {font-size:18px; margin:0 0 4px;}
+  .small {font-size:12px; line-height:1.4; margin-bottom:10px;}
+  .tray-list {display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px;}
+  .piece-card {min-width:0; padding:9px; border-radius:12px;}
+  .piece-card.selected {padding:8px; border:2px solid #2386bf;}
+  .piece-head {font-size:12px; line-height:1.2; gap:4px; margin-bottom:6px; min-height:40px;}
+  .piece-head span {overflow-wrap:anywhere;}
+  .piece-preview {max-width:100%; gap:2px; touch-action:none !important; cursor:grab;}
+  .mini-cell {width:clamp(17px,5vw,23px); height:clamp(17px,5vw,23px);}
+  .rotate {min-width:42px; min-height:42px; flex:0 0 42px; font-size:19px;}
+  .state {font-size:11px; line-height:1.3; margin-top:6px; overflow-wrap:anywhere;}
+  button.alt {min-height:44px; padding:10px 12px; font-size:13px;}
+  #message {margin:12px 2px 0; font-size:15px;}
+}
+@media screen and (max-width:380px) {
+  main {padding-left:7px; padding-right:7px;}
+  .tray-list {gap:6px;}
+  .piece-card {padding:7px;}
+  .piece-card.selected {padding:6px;}
+  .piece-head {font-size:11px; min-height:38px;}
+  .mini-cell {width:18px; height:18px;}
+  .rotate {min-width:38px; min-height:38px; flex-basis:38px;}
+}
+@media screen and (min-width:761px) {
+  .layout {display:grid; grid-template-columns:minmax(250px,340px) minmax(0,1fr);}
+}
+
+</style>
+</head><body><main>
+<h1>🧩 Перемістіть блоки!</h1>
+<p class="intro">Перетягни всі кольорові деталі на сітку 5 × 5, щоб повністю заповнити квадрат. Деталі можна обертати.</p>
+<div class="layout">
+<section class="board-wrap">
+ <div class="board" id="board" aria-label="Ігрове поле 5 на 5"></div>
+ <p class="legend">Перетягни деталь на поле. Для повороту натисни ↻ біля її назви.</p>
+ <div class="actions"><button class="alt" id="clear">Очистити поле</button><button class="alt" id="hint">Показати підказку</button></div>
+</section>
+<aside class="tray"><h2>Кольорові деталі</h2><p class="small">На телефоні торкнися деталі, а потім потрібної клітинки квадрата. На комп’ютері можна перетягувати мишкою.</p><div class="tray-list" id="tray"></div></aside>
+</div>
+<div id="message" role="status">🎉 <strong>Чудово! Квадрат повністю заповнено!</strong><br>Ти впорався з головоломкою!</div>
+</main>
+<script>
+const pieces=[{"id": "yellow", "name": "Жовта деталь", "color": "#e4e600", "cells": [[0, 0], [1, 0], [2, 0], [2, 1]]}, {"id": "green", "name": "Зелена деталь", "color": "#239b0b", "cells": [[0, 0], [1, 0], [1, 1], [1, 2]]}, {"id": "purple", "name": "Фіолетова деталь", "color": "#8734b2", "cells": [[0, 0], [0, 1], [1, 1], [2, 1], [2, 2]]}, {"id": "orange", "name": "Помаранчева деталь", "color": "#ed8127", "cells": [[0, 0], [0, 1], [0, 2], [1, 2]]}, {"id": "pink", "name": "Рожева деталь", "color": "#df0752", "cells": [[1, 0], [0, 1], [1, 1], [2, 1]]}, {"id": "blue", "name": "Синя деталь", "color": "#1686df", "cells": [[0, 0], [1, 0], [2, 0], [3, 0]]}];
+const board=document.getElementById('board'), tray=document.getElementById('tray');
+let state={}, selected=null, dragCandidate=null, activeDrag=null, suppressPieceClickId=null;
+pieces.forEach(p=>state[p.id]={rot:0,placed:false,x:0,y:0});
+
+function shape(p){
+ let a=p.cells.map(([x,y])=>[x,y]);
+ for(let i=0;i<state[p.id].rot;i++)a=a.map(([x,y])=>[-y,x]);
+ let mx=Math.min(...a.map(c=>c[0])),my=Math.min(...a.map(c=>c[1]));
+ return a.map(([x,y])=>[x-mx,y-my]);
+}
+function dims(s){return [Math.max(...s.map(c=>c[0]))+1,Math.max(...s.map(c=>c[1]))+1];}
+function occupied(except=null){
+ let out=[];
+ pieces.forEach(p=>{
+  let st=state[p.id];
+  if(st.placed&&p.id!==except)shape(p).forEach(([x,y])=>out.push([st.x+x,st.y+y,p.id]));
+ });
+ return out;
+}
+function fits(p,x,y){
+ let occ=occupied(p.id),s=shape(p);
+ return s.every(([dx,dy])=>x+dx>=0&&x+dx<5&&y+dy>=0&&y+dy<5&&!occ.some(([ox,oy])=>ox===x+dx&&oy===y+dy));
+}
+function place(p,x,y){
+ if(!fits(p,x,y)){
+  flash('Це місце зайняте або деталь виходить за межі квадрата. Спробуй іншу клітинку.');
+  return false;
+ }
+ state[p.id].placed=true;state[p.id].x=x;state[p.id].y=y;selected=null;
+ render();checkWin();return true;
+}
+function renderBoard(){
+ board.innerHTML='';
+ for(let y=0;y<5;y++)for(let x=0;x<5;x++){
+  let c=document.createElement('div');c.className='cell';c.dataset.x=x;c.dataset.y=y;
+  c.addEventListener('click',()=>{if(selected)place(pieces.find(p=>p.id===selected),x,y);});
+  board.appendChild(c);
+ }
+ pieces.forEach(p=>{
+  let st=state[p.id];if(!st.placed)return;
+  let s=shape(p),[w,h]=dims(s),el=document.createElement('div');
+  el.className='placed';el.dataset.id=p.id;
+  el.style.left=(st.x*20)+'%';el.style.top=(st.y*20)+'%';
+  el.style.width=(w*20)+'%';el.style.height=(h*20)+'%';
+  el.style.gridTemplateColumns=`repeat(${w},1fr)`;el.style.gridTemplateRows=`repeat(${h},1fr)`;
+  for(let i=0;i<w*h;i++){
+   let c=document.createElement('div');c.style.background='transparent';c.style.pointerEvents='none';el.appendChild(c);
+  }
+  s.forEach(([x,y])=>{let c=el.children[y*w+x];c.style.background=p.color;c.className='piece-cell';});
+  el.addEventListener('pointerdown',e=>beginPieceGesture(e,p.id,el));
+  board.appendChild(el);
+ });
+}
+function renderTray(){
+ tray.innerHTML='';
+ pieces.forEach(p=>{
+  let st=state[p.id],s=shape(p),[w,h]=dims(s),card=document.createElement('div');
+  card.className='piece-card'+(selected===p.id?' selected':'');
+  let head=document.createElement('div');head.className='piece-head';
+  let name=document.createElement('span');name.textContent=p.name;
+  let rot=document.createElement('button');rot.className='rotate';rot.textContent='↻';rot.title='Повернути на 90°';
+  rot.addEventListener('click',e=>{e.stopPropagation();rotatePiece(p.id);});
+  head.append(name,rot);
+  let preview=document.createElement('div');preview.className='piece-preview';
+  preview.style.gridTemplateColumns=`repeat(${w},23px)`;preview.style.gridTemplateRows=`repeat(${h},23px)`;
+  for(let i=0;i<w*h;i++){let c=document.createElement('div');preview.appendChild(c);}
+  s.forEach(([x,y])=>{let c=preview.children[y*w+x];c.className='mini-cell';c.style.background=p.color;});
+  preview.style.opacity=st.placed?'.38':'1';
+  preview.addEventListener('pointerdown',e=>{if(!st.placed)beginPieceGesture(e,p.id,preview);});
+  preview.tabIndex=st.placed?-1:0;preview.setAttribute('role','button');
+  preview.setAttribute('aria-label','Перетягнути або вибрати '+p.name);
+  preview.addEventListener('click',()=>{
+   if(suppressPieceClickId===p.id){suppressPieceClickId=null;return;}
+   if(!st.placed){
+    selected=selected===p.id?null:p.id;renderTray();syncMobileTarget();
+    flash(selected?'Обрано '+p.name+'. Торкнися клітинки, де має починатися деталь.':'Вибір скасовано.');
+   }
+  });
+  preview.addEventListener('keydown',e=>{
+   if((e.key==='Enter'||e.key===' ')&&!st.placed){
+    e.preventDefault();selected=p.id;renderTray();syncMobileTarget();
+    flash('Обрано '+p.name+'. Натисни на клітинку поля.');
+   }
+  });
+  let status=document.createElement('div');status.className='state';
+  status.textContent=st.placed?'✓ На полі':(selected===p.id?'Обрано — торкнися поля':'Перетягни або торкнися');
+  card.append(head,preview,status);tray.appendChild(card);
+ });
+}
+function rotatePiece(id){
+ let old=state[id].rot;state[id].rot=(old+1)%4;
+ if(state[id].placed&&!fits(pieces.find(p=>p.id===id),state[id].x,state[id].y)){
+  state[id].rot=old;flash('Після повороту деталь не поміщається тут. Спочатку перемісти її.');return;
+ }
+ render();checkWin();
+}
+
+/* A tap selects a piece; a finger/mouse movement beyond the threshold starts dragging. */
+
+
+function beginPieceGesture(e,id,source){
+ if(e.button!==undefined&&e.button!==0)return;
+ if(dragCandidate||activeDrag)return;
+ /* Do not preventDefault here: a short touch must still produce a click for tap-to-select. */
+ let piece=pieces.find(q=>q.id===id),st=state[id],sh=shape(piece),[w,h]=dims(sh);
+ let rect=source.getBoundingClientRect();
+ let hit=e.target.closest('.mini-cell,.piece-cell');
+ let ax=0,ay=0;
+ if(hit){
+  let idx=Array.from(source.children).indexOf(hit);
+  if(idx>=0){ax=idx%w;ay=Math.floor(idx/w);}
+ }else{
+  ax=Math.min(w-1,Math.max(0,Math.floor((e.clientX-rect.left)/(rect.width/w))));
+  ay=Math.min(h-1,Math.max(0,Math.floor((e.clientY-rect.top)/(rect.height/h))));
+ }
+ dragCandidate={
+  id,p:piece,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,
+  anchorX:ax,anchorY:ay,w,h,source,wasPlaced:st.placed,oldX:st.x,oldY:st.y,
+  shape:sh,started:false,ghost:null,unit:0
+ };
+ /* Listen on window so the gesture continues even when the finger leaves the source element. */
+ window.addEventListener('pointermove',onPiecePointerMove,{passive:false});
+ window.addEventListener('pointerup',onPiecePointerUp,{once:true});
+ window.addEventListener('pointercancel',onPiecePointerCancel,{once:true});
+}
+function startActualDrag(e){
+ let c=dragCandidate;if(!c||c.started)return;
+ c.started=true;
+ if(c.wasPlaced)state[c.id].placed=false;
+ selected=null;
+ c.source.style.opacity='.25';
+ let boardCell=board.clientWidth/5;
+ c.unit=Math.max(28,Math.min(70,boardCell));
+ let ghost=document.createElement('div');ghost.className='drag-ghost';
+ ghost.style.display='grid';
+ ghost.style.gridTemplateColumns=`repeat(${c.w},${c.unit}px)`;
+ ghost.style.gridTemplateRows=`repeat(${c.h},${c.unit}px)`;
+ ghost.style.gap='0';
+ for(let i=0;i<c.w*c.h;i++){
+  let cell=document.createElement('div');
+  cell.style.boxSizing='border-box';
+  ghost.appendChild(cell);
+ }
+ c.shape.forEach(([x,y])=>{
+  let cell=ghost.children[y*c.w+x];
+  cell.style.background=c.p.color;
+  cell.style.border='1px solid #263744';
+ });
+ document.body.appendChild(ghost);
+ c.ghost=ghost;activeDrag=c;
+ moveDragGhost(e);
+}
+function moveDragGhost(e){
+ let c=activeDrag;if(!c||!c.ghost)return;
+ c.ghost.style.left=(e.clientX-(c.anchorX+.5)*c.unit)+'px';
+ c.ghost.style.top=(e.clientY-(c.anchorY+.5)*c.unit)+'px';
+}
+function onPiecePointerMove(e){
+ let c=dragCandidate;if(!c||e.pointerId!==c.pointerId)return;
+ let dx=e.clientX-c.startX,dy=e.clientY-c.startY;
+ if(!c.started&&Math.hypot(dx,dy)>=5)startActualDrag(e);
+ if(c.started){
+  e.preventDefault();
+  moveDragGhost(e);
+ }
+}
+function cleanupPieceGesture(c){
+ window.removeEventListener('pointermove',onPiecePointerMove);
+ window.removeEventListener('pointerup',onPiecePointerUp);
+ window.removeEventListener('pointercancel',onPiecePointerCancel);
+ if(c&&c.source)c.source.style.opacity='';
+}
+function onPiecePointerUp(e){
+ let c=dragCandidate;if(!c||e.pointerId!==c.pointerId)return;
+ cleanupPieceGesture(c);
+ dragCandidate=null;
+ if(!c.started)return; // A short tap is handled by the click event and selects the piece.
+ if(c.ghost)c.ghost.remove();
+ activeDrag=null;
+ suppressPieceClickId=c.id;
+ setTimeout(()=>{if(suppressPieceClickId===c.id)suppressPieceClickId=null;},80);
+ let r=board.getBoundingClientRect();
+ let cell=board.clientWidth/5;
+ let originX=r.left+board.clientLeft,originY=r.top+board.clientTop;
+ let over=e.clientX>=originX&&e.clientX<=originX+board.clientWidth&&
+          e.clientY>=originY&&e.clientY<=originY+board.clientHeight;
+ let x=Math.floor((e.clientX-originX)/cell)-c.anchorX;
+ let y=Math.floor((e.clientY-originY)/cell)-c.anchorY;
+ if(over){
+  if(!place(c.p,x,y)&&c.wasPlaced){
+   state[c.id].placed=true;state[c.id].x=c.oldX;state[c.id].y=c.oldY;
+   render();checkWin();
+  }
+ }else{
+  if(c.wasPlaced){
+   state[c.id].placed=true;state[c.id].x=c.oldX;state[c.id].y=c.oldY;
+  }
+  render();
+  flash('Перетягни деталь на квадрат або вибери її дотиком і натисни потрібну клітинку.');
+  checkWin();
+ }
+}
+function onPiecePointerCancel(e){
+ let c=dragCandidate;if(!c||e.pointerId!==c.pointerId)return;
+ cleanupPieceGesture(c);
+ dragCandidate=null;
+ if(c.ghost)c.ghost.remove();
+ activeDrag=null;
+ if(c.wasPlaced){
+  state[c.id].placed=true;state[c.id].x=c.oldX;state[c.id].y=c.oldY;
+ }
+ render();checkWin();
+}
+function flash(msg){let el=document.getElementById('message');el.style.display='block';el.innerHTML=msg;el.classList.remove('win');}
+function checkWin(){let cells=occupied();let done=cells.length===25&&new Set(cells.map(c=>c[0]+','+c[1])).size===25;let el=document.getElementById('message');if(done){el.style.display='block';el.classList.add('win');el.innerHTML='🎉 <strong>Чудово! Квадрат повністю заповнено!</strong><br>Ти впорався з головоломкою!';}else if(el.classList.contains('win')){el.style.display='none';el.classList.remove('win');}}
+document.getElementById('clear').addEventListener('click',()=>{pieces.forEach(p=>state[p.id].placed=false);selected=null;render();checkWin();});
+document.getElementById('hint').addEventListener('click',()=>{flash('Підказка: деталь можна перетягнути на поле або вибрати її, а потім натиснути клітинку, де має починатися її верхній лівий кут. Поверни деталь кнопкою ↻.');});
+function syncMobileTarget(){
+ let wrap=document.querySelector('.board-wrap');
+ if(wrap)wrap.classList.toggle('mobile-target',!!selected&&window.matchMedia('(max-width:760px)').matches);
+}
+function render(){renderBoard();renderTray();syncMobileTarget();}
+render();
+</script></body></html>
