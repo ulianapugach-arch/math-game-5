@@ -1,52 +1,126 @@
 <!doctype html>
 <html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Перемісти блоки — інтерактивна головоломка</title>
+
 <style>
-:root{--ink:#23445c;--blue:#237bb0;--line:#243746;--cell:min(15vw,76px)}
+:root{--ink:#23445c;--blue:#237bb0;--line:#243746}
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#e8f7ff,#fff 70%);font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink)}
-main{max-width:1100px;margin:auto;padding:7px 10px 10px}
-h1{text-align:center;color:#185f8d;font-size:clamp(21px,2.5vw,28px);margin:0 0 3px}
-.intro{text-align:center;line-height:1.3;font-size:13px;margin:0 auto 9px;max-width:850px}
-.layout{display:grid;grid-template-columns:minmax(245px,300px) minmax(0,1fr);gap:14px;align-items:stretch}
-.board-wrap{order:1;background:#fff;border:2px solid #d5eaf5;border-radius:16px;padding:10px;box-shadow:0 8px 24px #316d8e12;display:flex;flex-direction:column;justify-content:center}
-.board{width:min(100%,280px);aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);border:2px solid #172b38;margin:auto;background:#fff;position:relative;touch-action:none}
+html{min-height:100%;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:linear-gradient(180deg,#e8f7ff,#fff 70%);font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink)}
+main{width:min(1100px,100%);margin:auto;padding:10px 14px 18px}
+h1{text-align:center;color:#185f8d;font-size:clamp(22px,3vw,30px);margin:2px 0 5px}
+.intro{text-align:center;line-height:1.4;font-size:14px;margin:0 auto 12px;max-width:850px}
+.layout{display:grid;grid-template-columns:minmax(250px,340px) minmax(0,1fr);gap:14px;align-items:stretch}
+.board-wrap,.tray{background:#fff;border:2px solid #d5eaf5;border-radius:16px;padding:12px;box-shadow:0 8px 24px #316d8e12;min-width:0}
+.board-wrap{display:flex;flex-direction:column;justify-content:center}
+.board{width:min(100%,310px);aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);border:2px solid #172b38;margin:auto;background:#fff;position:relative;touch-action:none;user-select:none}
 .cell{border:1px solid #263744;min-width:0;min-height:0;background:#fff}
-.placed{position:absolute;display:grid;touch-action:none;cursor:grab;z-index:2}
+.placed{position:absolute;display:grid;touch-action:none;cursor:grab;z-index:2;user-select:none}
 .placed:active{cursor:grabbing}
 .piece-cell{border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff33}
-.tray{order:2;background:#fff;border:2px solid #d5eaf5;border-radius:16px;padding:10px;box-shadow:0 8px 24px #316d8e12;display:flex;flex-direction:column;justify-content:center}
-.tray h2{font-size:17px;margin:0 0 3px}
-.small{font-size:11px;color:#648398;line-height:1.4;margin:0 0 12px}
-.tray-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}\n.piece-card{border:1px solid #e0edf4;border-radius:10px;padding:6px;margin:0;background:#fbfdff;min-width:0}
-.piece-head{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:12px;font-weight:800;margin-bottom:4px}
-.piece-preview{display:inline-grid;gap:1px;touch-action:none;cursor:grab;vertical-align:middle;max-width:100%;}
-.mini-cell{width:19px;height:19px;border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff35}
-.rotate{border:1px solid #c7e0ed;background:#eef8fd;color:#176b9e;border-radius:8px;padding:5px 8px;font-size:13px;font-weight:800;cursor:pointer}
-.state{font-size:12px;color:#648398;margin-top:6px}
-.actions{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:8px auto 0}
-button.main{border:0;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:800;cursor:pointer;background:#197bb6;color:white;box-shadow:0 4px 0 #105b89}
-button.alt{border:2px solid #c6e4f2;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;background:#fff;color:#176b9e}
+.tray{display:flex;flex-direction:column;justify-content:center}
+.tray h2{font-size:19px;margin:0 0 4px}
+.small{font-size:13px;color:#648398;line-height:1.45;margin:0 0 12px}
+.tray-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.piece-card{border:1px solid #e0edf4;border-radius:12px;padding:8px;background:#fbfdff;min-width:0}
+.piece-card.selected{border:2px solid #2386bf;background:#eef9ff;padding:7px}
+.piece-head{display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:13px;font-weight:800;margin-bottom:6px}
+.piece-preview{display:inline-grid;gap:2px;touch-action:none;cursor:grab;vertical-align:middle;max-width:100%;user-select:none}
+.mini-cell{width:22px;height:22px;border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff35}
+.rotate{border:1px solid #c7e0ed;background:#eef8fd;color:#176b9e;border-radius:9px;min-width:38px;min-height:36px;padding:5px 9px;font-size:16px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.state{font-size:12px;color:#648398;margin-top:7px;line-height:1.35}
+.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px auto 0}
+button.alt{border:2px solid #c6e4f2;border-radius:11px;padding:9px 12px;min-height:40px;font-size:13px;font-weight:800;cursor:pointer;background:#fff;color:#176b9e;touch-action:manipulation}
 #message{display:none;margin:15px auto 0;max-width:700px;text-align:center;background:#f0fff5;border:2px solid #b9e8cb;border-radius:16px;padding:15px;font-size:17px;line-height:1.5}
-.drag-ghost{position:fixed;z-index:99;pointer-events:none;opacity:.88;filter:drop-shadow(0 8px 7px #24445c55)}
-.legend{text-align:center;font-size:11px;color:#66869a;margin:12px 0 0}
-@media(max-width:720px){.tray-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.board-wrap{padding:12px}.tray{padding:12px}}
-@media(min-width:721px) and (max-height:620px){
-main{padding:4px 8px}
-h1{font-size:21px}
-.intro{font-size:11px;margin-bottom:5px}
-.board{width:min(100%,245px)}
-.board-wrap,.tray{padding:7px}
-.tray-list{gap:5px}
-.piece-card{padding:4px}
-.mini-cell{width:17px;height:17px}
-.piece-head{font-size:11px;margin-bottom:2px}
-.rotate{padding:3px 6px;font-size:11px}
-.small,.legend{font-size:10px;margin-bottom:4px}
-.actions{margin-top:5px}
-button.alt{padding:5px 8px;font-size:11px}
+#message.win{border-color:#8ed2a9;background:#f0fff5}
+.drag-ghost{position:fixed;z-index:99;pointer-events:none;opacity:.9;filter:drop-shadow(0 8px 7px #24445c55)}
+.legend{text-align:center;font-size:12px;color:#66869a;line-height:1.4;margin:10px 0 0}
+@media (max-width:760px){
+  main{padding:10px 12px 22px}
+  .layout{grid-template-columns:1fr;gap:12px}
+  .board-wrap{order:1;padding:12px}
+  .tray{order:2;padding:12px}
+  .board{width:min(88vw,390px)}
+  .tray-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .piece-card{padding:9px}
+  .piece-card.selected{padding:8px}
+  .piece-head{font-size:13px}
+  .mini-cell{width:22px;height:22px}
+  .rotate{min-width:42px;min-height:42px;font-size:18px}
+  button.alt{min-height:44px;padding:10px 14px;font-size:14px}
+  .small{font-size:12px}
 }
-</style></head><body><main>
+@media (max-width:380px){
+  main{padding:8px 8px 18px}
+  h1{font-size:22px}
+  .intro{font-size:12px}
+  .tray-list{gap:6px}
+  .piece-card{padding:7px}
+  .piece-card.selected{padding:6px}
+  .mini-cell{width:19px;height:19px}
+  .piece-head{font-size:12px}
+}
+@media (min-width:761px) and (max-height:650px){
+  main{padding:5px 10px}
+  h1{font-size:22px;margin-bottom:2px}
+  .intro{font-size:11px;margin-bottom:6px}
+  .layout{grid-template-columns:minmax(225px,270px) minmax(0,1fr);gap:9px}
+  .board{width:min(100%,245px)}
+  .board-wrap,.tray{padding:7px}
+  .tray-list{gap:5px}
+  .piece-card{padding:4px}
+  .piece-card.selected{padding:3px}
+  .mini-cell{width:17px;height:17px}
+  .piece-head{font-size:11px;margin-bottom:2px}
+  .rotate{min-width:30px;min-height:28px;padding:2px 5px;font-size:12px}
+  .small,.legend{font-size:10px;margin:4px 0}
+  .actions{margin-top:5px}
+  button.alt{min-height:30px;padding:4px 7px;font-size:11px}
+}
+@media (pointer:coarse){
+  .piece-preview,.placed,.board{touch-action:none}
+  .rotate,button.alt{ -webkit-tap-highlight-color:transparent }
+}
+
+/* Mobile-first play mode: stack the board and piece tray vertically. */
+@media screen and (max-width: 760px) {
+  html, body {width:100%; min-width:0; overflow-x:hidden;}
+  main {width:100%; max-width:100%; padding:10px 10px 24px;}
+  .layout {display:flex !important; flex-direction:column !important; width:100%; gap:12px;}
+  .board-wrap {order:1; width:100%; padding:10px; min-width:0;}
+  .board {width:min(88vw, 390px) !important; max-width:100%; margin:8px auto; aspect-ratio:1;}
+  .legend {font-size:12px; margin:8px 0 2px;}
+  .actions {margin:8px auto 2px; gap:8px;}
+  .tray {order:2; display:block; width:100%; padding:12px; min-width:0;}
+  .tray h2 {font-size:18px; margin:0 0 4px;}
+  .small {font-size:12px; line-height:1.4; margin-bottom:10px;}
+  .tray-list {display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px;}
+  .piece-card {min-width:0; padding:9px; border-radius:12px;}
+  .piece-card.selected {padding:8px; border:2px solid #2386bf;}
+  .piece-head {font-size:12px; line-height:1.2; gap:4px; margin-bottom:6px; min-height:40px;}
+  .piece-head span {overflow-wrap:anywhere;}
+  .piece-preview {max-width:100%; gap:2px; touch-action:manipulation !important; cursor:pointer;}
+  .mini-cell {width:clamp(17px,5vw,23px); height:clamp(17px,5vw,23px);}
+  .rotate {min-width:42px; min-height:42px; flex:0 0 42px; font-size:19px;}
+  .state {font-size:11px; line-height:1.3; margin-top:6px; overflow-wrap:anywhere;}
+  button.alt {min-height:44px; padding:10px 12px; font-size:13px;}
+  #message {margin:12px 2px 0; font-size:15px;}
+}
+@media screen and (max-width:380px) {
+  main {padding-left:7px; padding-right:7px;}
+  .tray-list {gap:6px;}
+  .piece-card {padding:7px;}
+  .piece-card.selected {padding:6px;}
+  .piece-head {font-size:11px; min-height:38px;}
+  .mini-cell {width:18px; height:18px;}
+  .rotate {min-width:38px; min-height:38px; flex-basis:38px;}
+}
+@media screen and (min-width:761px) {
+  .layout {display:grid; grid-template-columns:minmax(250px,340px) minmax(0,1fr);}
+}
+
+</style>
+</head><body><main>
 <h1>🧩 Перемістіть блоки!</h1>
 <p class="intro">Перетягни всі кольорові деталі на сітку 5 × 5, щоб повністю заповнити квадрат. Деталі можна обертати.</p>
 <div class="layout">
@@ -55,7 +129,7 @@ button.alt{padding:5px 8px;font-size:11px}
  <p class="legend">Перетягни деталь на поле. Для повороту натисни ↻ біля її назви.</p>
  <div class="actions"><button class="alt" id="clear">Очистити поле</button><button class="alt" id="hint">Показати підказку</button></div>
 </section>
-<aside class="tray"><h2>Кольорові деталі</h2><p class="small">Перетягуй деталі мишкою або пальцем. Якщо деталь не поміщається, вона повернеться назад.</p><div class="tray-list" id="tray"></div></aside>
+<aside class="tray"><h2>Кольорові деталі</h2><p class="small">На телефоні торкнися деталі, а потім потрібної клітинки квадрата. На комп’ютері можна перетягувати мишкою.</p><div class="tray-list" id="tray"></div></aside>
 </div>
 <div id="message" role="status">🎉 <strong>Чудово! Квадрат повністю заповнено!</strong><br>Ти впорався з головоломкою!</div>
 </main>
@@ -82,8 +156,15 @@ function renderTray(){tray.innerHTML='';pieces.forEach(p=>{let st=state[p.id],s=
  let preview=document.createElement('div');preview.className='piece-preview';preview.style.gridTemplateColumns=`repeat(${w},23px)`;preview.style.gridTemplateRows=`repeat(${h},23px)`;
  for(let i=0;i<w*h;i++){let c=document.createElement('div');preview.appendChild(c);}
  s.forEach(([x,y])=>{let c=preview.children[y*w+x];c.className='mini-cell';c.style.background=p.color;});
- preview.style.opacity=st.placed?'.38':'1';preview.addEventListener('pointerdown',e=>{if(!st.placed)startDrag(e,p.id,preview);});
- preview.addEventListener('click',()=>{if(!st.placed){selected=selected===p.id?null:p.id;renderTray();flash(selected?'Обрано '+p.name+'. Натисни на клітинку поля, щоб розмістити деталь.':'Вибір скасовано.');}});
+ preview.style.opacity=st.placed?'.38':'1';
+ preview.addEventListener('pointerdown',e=>{if(!st.placed && e.pointerType!=='touch')startDrag(e,p.id,preview);});
+ preview.tabIndex=st.placed?-1:0;preview.setAttribute('role','button');preview.setAttribute('aria-label','Вибрати '+p.name);preview.addEventListener('click',()=>{if(!st.placed){
+ selected=selected===p.id?null:p.id;renderTray();
+ flash(selected?'Обрано '+p.name+'. Торкнися клітинки, де має починатися деталь.':'Вибір скасовано.');
+ if(selected && window.matchMedia('(max-width: 760px)').matches){
+   setTimeout(()=>board.scrollIntoView({behavior:'smooth',block:'center'}),80);
+ }
+ }});preview.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!st.placed){e.preventDefault();selected=p.id;renderTray();flash('Обрано '+p.name+'. Натисни на клітинку поля.');}});
  let status=document.createElement('div');status.className='state';status.textContent=st.placed?'✓ На полі':(selected===p.id?'Обрано — натисни на поле':'Перетягни або вибери деталь');
  card.append(head,preview,status);tray.appendChild(card);
  });}
@@ -97,13 +178,21 @@ function startDrag(e,id,source){e.preventDefault();e.stopPropagation();let p=pie
  for(let i=0;i<w*h;i++){let c=document.createElement('div');ghost.appendChild(c);}
  s.forEach(([x,y])=>{let c=ghost.children[y*w+x];c.style.background=p.color;c.style.border='1px solid #263744';});
  document.body.appendChild(ghost);drag={id,ghost,anchorX,anchorY};moveGhost(e);
- window.addEventListener('pointermove',moveGhost);window.addEventListener('pointerup',endDrag,{once:true});
+ window.addEventListener('pointermove',moveGhost,{passive:false});window.addEventListener('pointerup',endDrag,{once:true});window.addEventListener('pointercancel',cancelDrag,{once:true});
 }
 function moveGhost(e){if(!drag)return;drag.ghost.style.left=(e.clientX-drag.anchorX*drag.ghost.children[0].getBoundingClientRect().width-12)+'px';drag.ghost.style.top=(e.clientY-drag.anchorY*drag.ghost.children[0].getBoundingClientRect().height-12)+'px';}
-function endDrag(e){window.removeEventListener('pointermove',moveGhost);if(!drag)return;let r=board.getBoundingClientRect(),cell=board.clientWidth/5,originX=r.left+board.clientLeft,originY=r.top+board.clientTop;
+function endDrag(e){
+ window.removeEventListener('pointermove',moveGhost);window.removeEventListener('pointercancel',cancelDrag);
+ if(!drag)return;
+ let r=board.getBoundingClientRect(),cell=board.clientWidth/5,originX=r.left+board.clientLeft,originY=r.top+board.clientTop;
  let x=Math.floor((e.clientX-originX)/cell)-drag.anchorX,y=Math.floor((e.clientY-originY)/cell)-drag.anchorY;
- let p=pieces.find(q=>q.id===drag.id);drag.ghost.remove();let over=e.clientX>=originX&&e.clientX<=originX+board.clientWidth&&e.clientY>=originY&&e.clientY<=originY+board.clientHeight;
- if(over)place(p,x,y);else{render();flash('Перетягни деталь на квадрат або вибери її та натисни потрібну клітинку.');}drag=null;}
+ let p=pieces.find(q=>q.id===drag.id);
+ let over=e.clientX>=originX&&e.clientX<=originX+board.clientWidth&&e.clientY>=originY&&e.clientY<=originY+board.clientHeight;
+ drag.ghost.remove();drag=null;
+ if(over)place(p,x,y);
+ else{render();flash('Перетягни деталь на квадрат. Або вибери її та торкнися потрібної клітинки поля.');}
+}
+function cancelDrag(){if(!drag)return;window.removeEventListener('pointermove',moveGhost);drag.ghost.remove();drag=null;render();}
 function flash(msg){let el=document.getElementById('message');el.style.display='block';el.innerHTML=msg;el.classList.remove('win');}
 function checkWin(){let cells=occupied();let done=cells.length===25&&new Set(cells.map(c=>c[0]+','+c[1])).size===25;let el=document.getElementById('message');if(done){el.style.display='block';el.classList.add('win');el.innerHTML='🎉 <strong>Чудово! Квадрат повністю заповнено!</strong><br>Ти впорався з головоломкою!';}else if(el.classList.contains('win')){el.style.display='none';el.classList.remove('win');}}
 document.getElementById('clear').addEventListener('click',()=>{pieces.forEach(p=>state[p.id].placed=false);selected=null;render();checkWin();});
