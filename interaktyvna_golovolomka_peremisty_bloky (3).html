@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Перемісти блоки — інтерактивна головоломка</title>
+<style>
+:root{--ink:#23445c;--blue:#237bb0;--line:#243746;--cell:min(15vw,76px)}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#e8f7ff,#fff 70%);font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink)}
+main{max-width:1100px;margin:auto;padding:7px 10px 10px}
+h1{text-align:center;color:#185f8d;font-size:clamp(21px,2.5vw,28px);margin:0 0 3px}
+.intro{text-align:center;line-height:1.3;font-size:13px;margin:0 auto 9px;max-width:850px}
+.layout{display:grid;grid-template-columns:minmax(245px,300px) minmax(0,1fr);gap:14px;align-items:stretch}
+.board-wrap{order:1;background:#fff;border:2px solid #d5eaf5;border-radius:16px;padding:10px;box-shadow:0 8px 24px #316d8e12;display:flex;flex-direction:column;justify-content:center}
+.board{width:min(100%,280px);aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);border:2px solid #172b38;margin:auto;background:#fff;position:relative;touch-action:none}
+.cell{border:1px solid #263744;min-width:0;min-height:0;background:#fff}
+.placed{position:absolute;display:grid;touch-action:none;cursor:grab;z-index:2}
+.placed:active{cursor:grabbing}
+.piece-cell{border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff33}
+.tray{order:2;background:#fff;border:2px solid #d5eaf5;border-radius:16px;padding:10px;box-shadow:0 8px 24px #316d8e12;display:flex;flex-direction:column;justify-content:center}
+.tray h2{font-size:17px;margin:0 0 3px}
+.small{font-size:11px;color:#648398;line-height:1.4;margin:0 0 12px}
+.tray-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}\n.piece-card{border:1px solid #e0edf4;border-radius:10px;padding:6px;margin:0;background:#fbfdff;min-width:0}
+.piece-head{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:12px;font-weight:800;margin-bottom:4px}
+.piece-preview{display:inline-grid;gap:1px;touch-action:none;cursor:grab;vertical-align:middle;max-width:100%;}
+.mini-cell{width:19px;height:19px;border:1px solid #263744;box-shadow:inset 0 0 0 1px #ffffff35}
+.rotate{border:1px solid #c7e0ed;background:#eef8fd;color:#176b9e;border-radius:8px;padding:5px 8px;font-size:13px;font-weight:800;cursor:pointer}
+.state{font-size:12px;color:#648398;margin-top:6px}
+.actions{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:8px auto 0}
+button.main{border:0;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:800;cursor:pointer;background:#197bb6;color:white;box-shadow:0 4px 0 #105b89}
+button.alt{border:2px solid #c6e4f2;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;background:#fff;color:#176b9e}
+#message{display:none;margin:15px auto 0;max-width:700px;text-align:center;background:#f0fff5;border:2px solid #b9e8cb;border-radius:16px;padding:15px;font-size:17px;line-height:1.5}
+.drag-ghost{position:fixed;z-index:99;pointer-events:none;opacity:.88;filter:drop-shadow(0 8px 7px #24445c55)}
+.legend{text-align:center;font-size:11px;color:#66869a;margin:12px 0 0}
+@media(max-width:720px){.tray-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.board-wrap{padding:12px}.tray{padding:12px}}
+@media(min-width:721px) and (max-height:620px){
+main{padding:4px 8px}
+h1{font-size:21px}
+.intro{font-size:11px;margin-bottom:5px}
+.board{width:min(100%,245px)}
+.board-wrap,.tray{padding:7px}
+.tray-list{gap:5px}
+.piece-card{padding:4px}
+.mini-cell{width:17px;height:17px}
+.piece-head{font-size:11px;margin-bottom:2px}
+.rotate{padding:3px 6px;font-size:11px}
+.small,.legend{font-size:10px;margin-bottom:4px}
+.actions{margin-top:5px}
+button.alt{padding:5px 8px;font-size:11px}
+}
+</style></head><body><main>
+<h1>🧩 Перемістіть блоки!</h1>
+<p class="intro">Перетягни всі кольорові деталі на сітку 5 × 5, щоб повністю заповнити квадрат. Деталі можна обертати.</p>
+<div class="layout">
+<section class="board-wrap">
+ <div class="board" id="board" aria-label="Ігрове поле 5 на 5"></div>
+ <p class="legend">Перетягни деталь на поле. Для повороту натисни ↻ біля її назви.</p>
+ <div class="actions"><button class="alt" id="clear">Очистити поле</button><button class="alt" id="hint">Показати підказку</button></div>
+</section>
+<aside class="tray"><h2>Кольорові деталі</h2><p class="small">Перетягуй деталі мишкою або пальцем. Якщо деталь не поміщається, вона повернеться назад.</p><div class="tray-list" id="tray"></div></aside>
+</div>
+<div id="message" role="status">🎉 <strong>Чудово! Квадрат повністю заповнено!</strong><br>Ти впорався з головоломкою!</div>
+</main>
+<script>
+const pieces=[{"id": "yellow", "name": "Жовта деталь", "color": "#e4e600", "cells": [[0, 0], [1, 0], [2, 0], [2, 1]]}, {"id": "green", "name": "Зелена деталь", "color": "#239b0b", "cells": [[0, 0], [1, 0], [1, 1], [1, 2]]}, {"id": "purple", "name": "Фіолетова деталь", "color": "#8734b2", "cells": [[0, 0], [0, 1], [1, 1], [2, 1], [2, 2]]}, {"id": "orange", "name": "Помаранчева деталь", "color": "#ed8127", "cells": [[0, 0], [0, 1], [0, 2], [1, 2]]}, {"id": "pink", "name": "Рожева деталь", "color": "#df0752", "cells": [[1, 0], [0, 1], [1, 1], [2, 1]]}, {"id": "blue", "name": "Синя деталь", "color": "#1686df", "cells": [[0, 0], [1, 0], [2, 0], [3, 0]]}];
+const board=document.getElementById('board'), tray=document.getElementById('tray');
+let state={}, selected=null, drag=null;
+pieces.forEach(p=>state[p.id]={rot:0,placed:false,x:0,y:0});
+function shape(p){let a=p.cells.map(([x,y])=>[x,y]);for(let i=0;i<state[p.id].rot;i++)a=a.map(([x,y])=>[-y,x]);let mx=Math.min(...a.map(c=>c[0])),my=Math.min(...a.map(c=>c[1]));return a.map(([x,y])=>[x-mx,y-my]);}
+function dims(s){return [Math.max(...s.map(c=>c[0]))+1,Math.max(...s.map(c=>c[1]))+1];}
+function occupied(except=null){let out=[];pieces.forEach(p=>{let st=state[p.id];if(st.placed&&p.id!==except)shape(p).forEach(([x,y])=>out.push([st.x+x,st.y+y,p.id]));});return out;}
+function fits(p,x,y){let occ=occupied(p.id),s=shape(p);return s.every(([dx,dy])=>x+dx>=0&&x+dx<5&&y+dy>=0&&y+dy<5&&!occ.some(([ox,oy])=>ox===x+dx&&oy===y+dy));}
+function place(p,x,y){if(!fits(p,x,y)){flash('Це місце зайняте або деталь виходить за межі квадрата. Спробуй іншу клітинку.');return false;}state[p.id].placed=true;state[p.id].x=x;state[p.id].y=y;selected=null;render();checkWin();return true;}
+function renderBoard(){board.innerHTML='';for(let y=0;y<5;y++)for(let x=0;x<5;x++){let c=document.createElement('div');c.className='cell';c.dataset.x=x;c.dataset.y=y;c.addEventListener('click',()=>{if(selected)place(pieces.find(p=>p.id===selected),x,y);});board.appendChild(c);}
+ pieces.forEach(p=>{let st=state[p.id];if(!st.placed)return;let s=shape(p),[w,h]=dims(s),el=document.createElement('div');el.className='placed';el.dataset.id=p.id;el.style.left=(st.x*20)+'%';el.style.top=(st.y*20)+'%';el.style.width=(w*20)+'%';el.style.height=(h*20)+'%';el.style.gridTemplateColumns=`repeat(${w},1fr)`;el.style.gridTemplateRows=`repeat(${h},1fr)`;
+ for(let i=0;i<w*h;i++){let c=document.createElement('div');c.style.background='transparent';c.style.pointerEvents='none';el.appendChild(c);}
+ s.forEach(([x,y])=>{let c=el.children[y*w+x];c.style.background=p.color;c.className='piece-cell';});
+ el.addEventListener('pointerdown',e=>startDrag(e,p.id,el));board.appendChild(el);
+ });
+}
+function renderTray(){tray.innerHTML='';pieces.forEach(p=>{let st=state[p.id],s=shape(p),[w,h]=dims(s),card=document.createElement('div');card.className='piece-card'+(selected===p.id?' selected':'');
+ let head=document.createElement('div');head.className='piece-head';let name=document.createElement('span');name.textContent=p.name;let rot=document.createElement('button');rot.className='rotate';rot.textContent='↻';rot.title='Повернути на 90°';rot.addEventListener('click',e=>{e.stopPropagation();rotatePiece(p.id);});
+ head.append(name,rot);
+ let preview=document.createElement('div');preview.className='piece-preview';preview.style.gridTemplateColumns=`repeat(${w},23px)`;preview.style.gridTemplateRows=`repeat(${h},23px)`;
+ for(let i=0;i<w*h;i++){let c=document.createElement('div');preview.appendChild(c);}
+ s.forEach(([x,y])=>{let c=preview.children[y*w+x];c.className='mini-cell';c.style.background=p.color;});
+ preview.style.opacity=st.placed?'.38':'1';preview.addEventListener('pointerdown',e=>{if(!st.placed)startDrag(e,p.id,preview);});
+ preview.addEventListener('click',()=>{if(!st.placed){selected=selected===p.id?null:p.id;renderTray();flash(selected?'Обрано '+p.name+'. Натисни на клітинку поля, щоб розмістити деталь.':'Вибір скасовано.');}});
+ let status=document.createElement('div');status.className='state';status.textContent=st.placed?'✓ На полі':(selected===p.id?'Обрано — натисни на поле':'Перетягни або вибери деталь');
+ card.append(head,preview,status);tray.appendChild(card);
+ });}
+function rotatePiece(id){let old=state[id].rot;state[id].rot=(old+1)%4;if(state[id].placed&&!fits(pieces.find(p=>p.id===id),state[id].x,state[id].y)){state[id].rot=old;flash('Після повороту деталь не поміщається тут. Спочатку перемісти її.');return;}render();checkWin();}
+function startDrag(e,id,source){e.preventDefault();e.stopPropagation();let p=pieces.find(q=>q.id===id),st=state[id];if(st.placed)st.placed=false;selected=null;
+ let s=shape(p),[w,h]=dims(s),rect=source.getBoundingClientRect();
+ let fracX=Math.max(0,Math.min(.999,(e.clientX-rect.left)/rect.width)),fracY=Math.max(0,Math.min(.999,(e.clientY-rect.top)/rect.height));
+ let anchorX=Math.min(w-1,Math.floor(fracX*w)),anchorY=Math.min(h-1,Math.floor(fracY*h));
+ let boardCell=board.clientWidth/5,unit=Math.max(24,Math.min(60,boardCell));
+ let ghost=document.createElement('div');ghost.className='drag-ghost';ghost.style.display='grid';ghost.style.gridTemplateColumns=`repeat(${w},${unit}px)`;ghost.style.gridTemplateRows=`repeat(${h},${unit}px)`;ghost.style.gap='0';
+ for(let i=0;i<w*h;i++){let c=document.createElement('div');ghost.appendChild(c);}
+ s.forEach(([x,y])=>{let c=ghost.children[y*w+x];c.style.background=p.color;c.style.border='1px solid #263744';});
+ document.body.appendChild(ghost);drag={id,ghost,anchorX,anchorY};moveGhost(e);
+ window.addEventListener('pointermove',moveGhost);window.addEventListener('pointerup',endDrag,{once:true});
+}
+function moveGhost(e){if(!drag)return;drag.ghost.style.left=(e.clientX-drag.anchorX*drag.ghost.children[0].getBoundingClientRect().width-12)+'px';drag.ghost.style.top=(e.clientY-drag.anchorY*drag.ghost.children[0].getBoundingClientRect().height-12)+'px';}
+function endDrag(e){window.removeEventListener('pointermove',moveGhost);if(!drag)return;let r=board.getBoundingClientRect(),cell=board.clientWidth/5,originX=r.left+board.clientLeft,originY=r.top+board.clientTop;
+ let x=Math.floor((e.clientX-originX)/cell)-drag.anchorX,y=Math.floor((e.clientY-originY)/cell)-drag.anchorY;
+ let p=pieces.find(q=>q.id===drag.id);drag.ghost.remove();let over=e.clientX>=originX&&e.clientX<=originX+board.clientWidth&&e.clientY>=originY&&e.clientY<=originY+board.clientHeight;
+ if(over)place(p,x,y);else{render();flash('Перетягни деталь на квадрат або вибери її та натисни потрібну клітинку.');}drag=null;}
+function flash(msg){let el=document.getElementById('message');el.style.display='block';el.innerHTML=msg;el.classList.remove('win');}
+function checkWin(){let cells=occupied();let done=cells.length===25&&new Set(cells.map(c=>c[0]+','+c[1])).size===25;let el=document.getElementById('message');if(done){el.style.display='block';el.classList.add('win');el.innerHTML='🎉 <strong>Чудово! Квадрат повністю заповнено!</strong><br>Ти впорався з головоломкою!';}else if(el.classList.contains('win')){el.style.display='none';el.classList.remove('win');}}
+document.getElementById('clear').addEventListener('click',()=>{pieces.forEach(p=>state[p.id].placed=false);selected=null;render();checkWin();});
+document.getElementById('hint').addEventListener('click',()=>{flash('Підказка: деталь можна перетягнути на поле або вибрати її, а потім натиснути клітинку, де має починатися її верхній лівий кут. Поверни деталь кнопкою ↻.');});
+function render(){renderBoard();renderTray();}
+render();
+</script></body></html>
